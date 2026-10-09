@@ -2,7 +2,7 @@
 <html lang="en" class="h-full bg-slate-900 text-slate-100">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>TrackFinancePH — Your tracker</title>
   <meta name="robots" content="noindex">
   <link rel="icon" type="image/png" href="/assets/favicon.png">
@@ -159,6 +159,79 @@
 
     .logo-on-light{display:none} html.light .logo-on-light{display:block} html.light .logo-on-dark{display:none}
 
+    /* ===== Mobile layout fixes ===== */
+    html { overflow-x: hidden; }
+    .tab-scroll { scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .tab-scroll::-webkit-scrollbar { display: none; }
+    .modal-backdrop { overscroll-behavior: contain; }
+    /* flex-centered modals: stay scrollable when taller than the screen */
+    #modal-income, #modal-expense, #modal-debt, #modal-elevate, #auth-screen {
+      overflow-y: auto; align-items: flex-start;
+    }
+    #modal-income > div, #modal-expense > div, #modal-debt > div, #modal-elevate > div, #auth-screen > div {
+      margin-top: auto; margin-bottom: auto;
+    }
+    #modal-admin > div, #modal-userview > div { max-width: 100%; }
+    #admin-codes span, #admin-users span { overflow-wrap: anywhere; }
+
+    @media (max-width: 1279px) {
+      header .header-actions button > span.sm\:inline { display: none !important; }
+      header .header-actions > button { min-width: 40px; min-height: 40px; justify-content: center; }
+    }
+    @media (max-width: 1023px) {
+      .tab-scroll { padding-right: 2.5rem !important; -webkit-mask-image: linear-gradient(to right,#000 calc(100% - 2.5rem),transparent); mask-image: linear-gradient(to right,#000 calc(100% - 2.5rem),transparent); }
+      #strat-wrap { width: 100%; }
+      #strat-wrap button { flex: 1 1 0; text-align: center; line-height: 1.25; padding: .5rem .4rem; }
+    }
+    @media (max-width: 639px) {
+      header.sticky { position: static !important; }
+      header .header-row { padding-top: .6rem; padding-bottom: .6rem; height: auto !important; }
+      header .header-actions { width: 100%; justify-content: space-between; gap: .35rem; }
+      header .header-actions > button { flex: 1 1 0; justify-content: center; min-height: 40px; padding-left: .25rem; padding-right: .25rem; }
+      header .header-actions > button:not(.hidden) { display: flex; }
+      #btn-admin.hidden { display: none !important; }
+
+      main { padding-top: 1rem; padding-bottom: 2rem; }
+      main .p-6 { padding: 1rem !important; }
+      main .p-5 { padding: 1rem !important; }
+      main td.px-6, main th.px-6 { padding-left: .75rem !important; padding-right: .75rem !important; }
+      main td.px-6 { padding-top: .75rem !important; padding-bottom: .75rem !important; }
+      /* income / expense tables become stacked rows (no sideways scrolling) */
+      #tab-budget table, #tab-budget tbody, #tab-budget tfoot { display: block; min-width: 0; width: 100%; }
+      #tab-budget thead { display: none; }
+      #tab-budget tbody tr { display: grid; grid-template-columns: minmax(0,1fr) auto auto; grid-template-areas: "n a x" "c a x"; align-items: center; column-gap: .5rem; row-gap: .35rem; padding: .75rem 1rem; }
+      #tab-budget tbody tr td { display: block; padding: 0 !important; border: 0; min-width: 0; }
+      #tab-budget tbody tr td:nth-child(1) { grid-area: n; overflow-wrap: anywhere; }
+      #tab-budget tbody tr td:nth-child(2) { grid-area: c; justify-self: start; }
+      #tab-budget tbody tr td:nth-child(2) span { white-space: nowrap; }
+      #tab-budget tbody tr td:nth-child(3) { grid-area: a; }
+      #tab-budget tbody tr td:nth-child(4) { grid-area: x; }
+      #tab-budget tbody tr td[colspan] { grid-area: 1 / 1 / 2 / -1; text-align: center; padding: 1rem 0 !important; }
+      #tab-budget tfoot tr { display: flex; justify-content: space-between; align-items: center; gap: .75rem; padding: .9rem 1rem; }
+      #tab-budget tfoot td { padding: 0 !important; display: block; }
+      #tab-budget tfoot td:last-child { display: none; }
+      main table input[data-money] { width: 6.5rem; }
+      main table input[data-money] { width: 6.5rem; }
+
+      #strat-wrap { width: 100%; }
+      #strat-wrap button { flex: 1 1 0; text-align: center; line-height: 1.25; padding: .5rem .4rem; }
+
+      #modal-income > div, #modal-expense > div, #modal-debt > div { padding: 1rem; }
+      #auth-screen { padding: .75rem; }
+      #modal-admin, #modal-userview { padding: .5rem; }
+      #modal-admin > div, #modal-userview > div { margin-top: .5rem; margin-bottom: .5rem; padding: 1rem; }
+      #admin-users > div > div:last-child { width: 100%; flex-wrap: wrap; }
+
+      input:not([type=range]):not([type=checkbox]), select, textarea { font-size: 16px !important; }
+
+      #toast { left: 1rem; right: 1rem; bottom: calc(1rem + env(safe-area-inset-bottom, 0px)); }
+      .tab-btn { padding-bottom: .75rem; }
+    }
+    @media (max-width: 400px) {
+      main .text-2xl { font-size: 1.35rem; line-height: 1.75rem; }
+      #metric-income, #metric-expenses, #metric-debt-monthly, #metric-remaining, #metric-total-debt { overflow-wrap: anywhere; }
+    }
+
     @media print {
       .no-print { display: none !important; }
       body { background: white !important; color: black !important; }
@@ -235,16 +308,16 @@
 
   <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
+      <div class="header-row flex flex-wrap items-center justify-between gap-y-2 min-h-[4rem]">
         <a href="/" class="flex items-center gap-3" title="Back to home">
           <img src="/assets/mark.png" alt="" class="h-9 w-auto logo-on-light">
           <img src="/assets/mark-light.png" alt="" class="h-9 w-auto logo-on-dark">
           <span class="font-bold text-lg text-white leading-tight">Track<span class="text-emerald-400">Finance</span>PH</span>
         </a>
 
-        <div class="flex items-center gap-2">
+        <div class="header-actions flex items-center gap-2">
           <span id="user-chip" class="hidden sm:inline text-xs text-slate-400 mr-1"></span>
-          <button id="btn-admin" onclick="openAdminPanel()" class="hidden px-3 py-1.5 text-xs font-medium text-amber-300 hover:text-amber-200 bg-amber-950/40 hover:bg-amber-900/60 border border-amber-800/50 rounded-lg transition-all items-center gap-1.5">
+          <button id="btn-admin" onclick="openAdminPanel()" title="Admin panel" aria-label="Admin panel" class="hidden px-3 py-1.5 text-xs font-medium text-amber-300 hover:text-amber-200 bg-amber-950/40 hover:bg-amber-900/60 border border-amber-800/50 rounded-lg transition-all items-center gap-1.5">
             <i class="fa-solid fa-user-shield"></i><span class="hidden sm:inline">Admin</span>
           </button>
           <button id="btn-theme" onclick="toggleTheme()" class="px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700 rounded-lg transition-all flex items-center gap-1.5" title="Switch light / dark theme">
@@ -262,12 +335,12 @@
             <span class="hidden sm:inline">Clear All Data</span>
           </button>
           
-          <button onclick="exportToCSV()" class="px-3 py-1.5 text-xs font-medium text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-800/50 rounded-lg transition-all flex items-center gap-1.5">
+          <button onclick="exportToCSV()" title="Export CSV" aria-label="Export CSV" class="px-3 py-1.5 text-xs font-medium text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-800/50 rounded-lg transition-all flex items-center gap-1.5">
             <i class="fa-solid fa-file-csv"></i>
             <span class="hidden sm:inline">Export CSV</span>
           </button>
 
-          <button onclick="window.print()" class="px-3 py-1.5 text-xs font-medium text-indigo-300 hover:text-indigo-200 bg-indigo-950/50 hover:bg-indigo-900/60 border border-indigo-800/50 rounded-lg transition-all flex items-center gap-1.5">
+          <button onclick="window.print()" title="Print / Save PDF" aria-label="Print / Save PDF" class="px-3 py-1.5 text-xs font-medium text-indigo-300 hover:text-indigo-200 bg-indigo-950/50 hover:bg-indigo-900/60 border border-indigo-800/50 rounded-lg transition-all flex items-center gap-1.5">
             <i class="fa-solid fa-print"></i>
             <span class="hidden sm:inline">Print / Save PDF</span>
           </button>
@@ -278,7 +351,7 @@
 
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
       <!-- Monthly Income Card -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition-all shadow-sm">
         <div class="flex items-center justify-between text-slate-400 mb-2">
@@ -336,7 +409,7 @@
       </div>
 
       <!-- Total Outstanding Debt Card -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition-all shadow-sm sm:col-span-2 lg:col-span-1">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition-all shadow-sm sm:col-span-2 xl:col-span-1">
         <div class="flex items-center justify-between text-slate-400 mb-2">
           <span class="text-xs font-semibold uppercase tracking-wider">Total Debt Load</span>
           <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center">
@@ -351,7 +424,7 @@
     </section>
 
     <div class="border-b border-slate-800 no-print">
-      <nav class="flex space-x-6 overflow-x-auto pb-1" aria-label="Tabs">
+      <nav class="tab-scroll flex space-x-6 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0" aria-label="Tabs">
         <button onclick="switchTab('tab-overview')" id="nav-tab-overview" class="tab-btn active border-b-2 border-indigo-500 text-indigo-400 pb-3 text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition-all">
           <i class="fa-solid fa-chart-pie"></i>
           Financial Overview
@@ -579,7 +652,7 @@
 
       <!-- Debt Strategy Simulator -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-4">
           <div>
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-calculator text-indigo-400"></i>
@@ -588,7 +661,7 @@
             <p class="text-xs text-slate-400">Simulate repayment timelines using Snowball vs Avalanche priority strategies.</p>
           </div>
           
-          <div class="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
+          <div id="strat-wrap" class="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
             <button onclick="setStrategy('snowball')" id="strat-snowball" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition-all">
               Snowball (Lowest Balance)
             </button>
@@ -646,7 +719,7 @@
           <p class="text-xs text-slate-400 mt-0.5">Safely distribute remaining unallocated monthly income into savings and extra principal payments.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           
           <!-- Emergency Savings Card -->
           <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4">
@@ -675,7 +748,7 @@
           </div>
 
           <!-- Unallocated Buffer Card -->
-          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4 sm:col-span-2 lg:col-span-1">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold uppercase text-indigo-400 tracking-wider">3. Unallocated Buffer</span>
               <i class="fa-solid fa-shield text-indigo-400 text-lg"></i>
@@ -1135,7 +1208,7 @@
             ${u.disabled ? '<span class="ml-1 text-[10px] uppercase px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300">disabled</span>' : ''}
             ${self ? '<span class="ml-1 text-[10px] text-slate-500">(you)</span>' : ''}
           </div>
-          <div class="flex gap-1 text-xs">
+          <div class="flex flex-wrap gap-1 text-xs">
             ${self ? '' : `<button onclick="adminViewUser('${n}')" class="px-2 py-1 rounded bg-slate-700/60 hover:bg-slate-600 text-slate-400" title="View profile"><i class="fa-regular fa-eye"></i></button>`}
             <button onclick="adminResetPassword('${n}')" class="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600">Reset password</button>
             ${self ? '' : `
