@@ -13,6 +13,9 @@ import crypto from "node:crypto";
 export const config = { path: "/api/*" };
 
 const TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const ELEVATE_TTL_MS = 10 * 60 * 1000;      // how long an admin password confirmation stays valid
+const ELEVATE_MAX_FAILS = 5;                // wrong confirmations before a temporary lockout
+const ELEVATE_LOCK_MS = 15 * 60 * 1000;
 const MAX_DATA_BYTES = 1_000_000;
 const USERNAME_RE = /^[a-zA-Z0-9_.-]{3,24}$/;
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I
@@ -28,6 +31,7 @@ const fail = (status, error) => res(status, { error });
 const users = () => getStore({ name: "users", consistency: "strong" });
 const codes = () => getStore({ name: "codes", consistency: "strong" });
 const userData = () => getStore({ name: "userdata", consistency: "strong" });
+const throttle = () => getStore({ name: "throttle", consistency: "strong" });
 
 // ---------- crypto helpers ----------
 function secret() {
@@ -37,12 +41,12 @@ function secret() {
 }
 const b64 = (buf) => Buffer.from(buf).toString("base64url");
 
-function signToken(username) {
-  const payload = b64(JSON.stringify({ u: username, exp: Date.now() + TOKEN_TTL_MS }));
+function signToken(username, purpose = "session", ttl = TOKEN_TTL_MS) {
+  const payload = b64(JSON.stringify({ u: username, p: purpose, exp: Date.now() + ttl }));
   const sig = crypto.createHmac("sha256", secret()).update(payload).digest("base64url");
   return `${payload}.${sig}`;
 }
-function verifyToken(token) {
+function verifyToken(token, purpose = "session") {
   if (!token || !token.includes(".")) return null;
   const [payload, sig] = token.split(".");
   const expected = crypto.createHmac("sha256", secret()).update(payload).digest("base64url");
@@ -50,7 +54,8 @@ function verifyToken(token) {
   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
   try {
     const data = JSON.parse(Buffer.from(payload, "base64url").toString());
-    return data.exp > Date.now() ? data.u : null;
+    // tokens issued before purposes existed have no "p" and count as session tokens
+    return data.exp > Date.now() && (data.p || "session") === purpose ? data.u : null;
   } catch { return null; }
 }
 
@@ -186,10 +191,41 @@ async function adminCountActive() {
   return (await listAll(users())).filter((u) => u.role === "admin" && !u.disabled).length;
 }
 
+// Admin re-enters their own password before opening other users' profiles.
+// Returns a short-lived token that only the /admin/view endpoint accepts.
+async function adminVerify(req, me) {
+  const key = "elevate-" + keyOf(me.username);
+  const rec = (await throttle().get(key, { type: "json" })) || { count: 0, until: 0 };
+  if (rec.until > Date.now()) return fail(429, "Too many attempts. Try again later.");
+  const { password } = await readBody(req);
+  if (typeof password !== "string" || !checkPassword(password, me)) {
+    const count = (rec.until ? 0 : rec.count) + 1;
+    await throttle().setJSON(key, count >= ELEVATE_MAX_FAILS
+      ? { count: 0, until: Date.now() + ELEVATE_LOCK_MS }
+      : { count, until: 0 });
+    return fail(403, "Incorrect password");
+  }
+  if (rec.count || rec.until) await throttle().delete(key);
+  return res(200, { token: signToken(me.username, "elevate", ELEVATE_TTL_MS), expiresAt: Date.now() + ELEVATE_TTL_MS });
+}
+
+async function adminViewUser(req, me, id) {
+  const tok = req.headers.get("x-admin-access") || "";
+  const who = verifyToken(tok, "elevate");
+  if (!who || keyOf(who) !== keyOf(me.username)) return fail(403, "Password confirmation required");
+  const target = await getUser(decodeURIComponent(id));
+  if (!target) return fail(404, "User not found");
+  const data = await userData().get(keyOf(target.username), { type: "json" });
+  return res(200, { user: publicUser(target), data: data || null });
+}
+
 async function admin(req, me, parts) {
   if (me.role !== "admin") return fail(403, "Admin only");
-  const [, section, id] = parts; // ["admin", "users"|"codes", id?]
+  const [, section, id] = parts; // ["admin", "users"|"codes"|"verify"|"view", id?]
   const method = req.method;
+
+  if (section === "verify" && method === "POST" && !id) return await adminVerify(req, me);
+  if (section === "view" && method === "GET" && id) return await adminViewUser(req, me, id);
 
   if (section === "users") {
     if (method === "GET" && !id) {

@@ -30,6 +30,16 @@ database needed).
 - The admin account is created automatically on the first admin login using
   `ADMIN_PASSWORD`. Changing that env var later does not change an existing
   admin password — use *Reset password* in the Admin panel instead.
+- **Income sources**: income is a list (e.g. Salary, Sideline, Online Work), added
+  and edited in *Income & Expense Manager*. The dashboard uses the total. Accounts that
+  saved a single income number before are migrated automatically to one "Salary" source.
+- **Theme**: a sun/moon button in the header switches light/dark. It only exists after
+  login, is saved per account, and the login screen is always dark.
+- **Viewing a user's profile (admin)**: *Admin -> Users -> eye icon*. The admin must
+  re-enter their own password first; this grants 10 minutes of access (memory only,
+  cleared on logout). The view is read-only and the user is not notified. After 5 wrong
+  passwords the confirmation is locked for 15 minutes. Tune `ELEVATE_TTL_MS`,
+  `ELEVATE_MAX_FAILS`, `ELEVATE_LOCK_MS` at the top of `api.mjs`.
 - Data previously stored in the browser (`localStorage`) can be imported into
   an account on first login.
 

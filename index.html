@@ -77,6 +77,83 @@
     
     body.locked > header, body.locked > main { display: none !important; }
 
+
+    /* ===== Light theme (applied only after login) ===== */
+    html.light .bg-slate-950 { background-color:#f8fafc }
+    html.light .bg-slate-900 { background-color:#ffffff }
+    html.light .bg-slate-800 { background-color:#f1f5f9 }
+    html.light .bg-slate-700 { background-color:#e2e8f0 }
+    html.light .bg-slate-800\/60 { background-color:rgba(241,245,249,.9) }
+    html.light .bg-slate-950\/60 { background-color:rgba(248,250,252,.9) }
+    html.light .bg-slate-950\/80 { background-color:rgba(241,245,249,.95) }
+    html.light .bg-amber-950\/40 { background-color:rgba(254,243,199,.8) }
+    html.light .bg-emerald-950\/40 { background-color:rgba(209,250,229,.8) }
+    html.light .bg-rose-950\/40 { background-color:rgba(255,228,230,.9) }
+    html.light .bg-indigo-950\/50 { background-color:rgba(224,231,255,.9) }
+    html.light .bg-rose-900\/60 { background-color:rgba(254,205,211,.9) }
+    html.light .hover\:bg-slate-800\/40:hover { background-color:rgba(241,245,249,.9) }
+    html.light .hover\:bg-slate-700\/60:hover { background-color:#e2e8f0 }
+    html.light .hover\:bg-slate-600:hover { background-color:#cbd5e1 }
+    html.light .hover\:bg-amber-900\/60:hover { background-color:rgba(253,230,138,.7) }
+    html.light .hover\:bg-emerald-900\/60:hover { background-color:rgba(167,243,208,.7) }
+    html.light .hover\:bg-rose-900\/60:hover { background-color:rgba(254,205,211,1) }
+    html.light .hover\:bg-indigo-900\/60:hover { background-color:rgba(199,210,254,.8) }
+    html.light .hover\:bg-rose-800:hover { background-color:#fda4af }
+    html.light .hover\:border-slate-700:hover { border-color:#cbd5e1 }
+    html.light .border-slate-800 { border-color:#e2e8f0 }
+    html.light .border-slate-700 { border-color:#cbd5e1 }
+    html.light .border-slate-800\/80 { border-color:#e2e8f0 }
+    html.light .border-slate-700\/60 { border-color:#e2e8f0 }
+    html.light .border-slate-700\/50 { border-color:#e2e8f0 }
+    html.light .border-amber-800\/50 { border-color:rgba(252,211,77,.7) }
+    html.light .border-emerald-800\/50 { border-color:rgba(110,231,183,.7) }
+    html.light .border-rose-800\/50 { border-color:rgba(253,164,175,.7) }
+    html.light .border-indigo-800\/50 { border-color:rgba(165,180,252,.7) }
+    html.light .border-indigo-800\/40 { border-color:rgba(165,180,252,.6) }
+    html.light .divide-slate-800\/60 > :not([hidden]) ~ :not([hidden]) { border-color:#e2e8f0 }
+    html.light .text-slate-100 { color:#0f172a }
+    html.light .text-slate-200 { color:#1e293b }
+    html.light .text-slate-300 { color:#334155 }
+    html.light .text-slate-400 { color:#64748b }
+    html.light .text-slate-500 { color:#64748b }
+    html.light .text-slate-600 { color:#94a3b8 }
+    html.light .text-white { color:#0f172a }
+    html.light .text-emerald-400 { color:#059669 }
+    html.light .text-emerald-300 { color:#047857 }
+    html.light .text-indigo-400 { color:#4f46e5 }
+    html.light .text-indigo-300 { color:#4338ca }
+    html.light .text-amber-400 { color:#d97706 }
+    html.light .text-amber-300 { color:#b45309 }
+    html.light .text-amber-400\/90 { color:#b45309 }
+    html.light .text-rose-400 { color:#e11d48 }
+    html.light .text-rose-300 { color:#be123c }
+    html.light .text-rose-200 { color:#be123c }
+    html.light .text-purple-400 { color:#9333ea }
+    html.light .text-purple-300 { color:#7e22ce }
+    html.light .hover\:text-white:hover { color:#0f172a }
+    html.light .hover\:text-slate-200:hover { color:#0f172a }
+    html.light .hover\:text-amber-200:hover { color:#92400e }
+    html.light .hover\:text-emerald-300:hover { color:#047857 }
+    html.light .hover\:text-indigo-200:hover { color:#3730a3 }
+    html.light .hover\:text-rose-300:hover { color:#be123c }
+    html.light .hover\:text-rose-400:hover { color:#be123c }
+    html.light .bg-indigo-600.text-white { color:#fff }
+    html.light .bg-indigo-600 .text-white { color:#fff }
+    html.light .bg-indigo-500.text-white { color:#fff }
+    html.light .bg-indigo-500 .text-white { color:#fff }
+    html.light .bg-emerald-600.text-white { color:#fff }
+    html.light .bg-emerald-600 .text-white { color:#fff }
+    html.light .bg-amber-600.text-white { color:#fff }
+    html.light .bg-amber-600 .text-white { color:#fff }
+    html.light .bg-rose-600.text-white { color:#fff }
+    html.light .bg-rose-600 .text-white { color:#fff }
+    html.light .bg-gradient-to-tr.text-white { color:#fff }
+    html.light .bg-gradient-to-tr .text-white { color:#fff }
+    html.light, html.light body.bg-slate-950 { background-color:#f1f5f9; }
+    html.light .modal-backdrop { background-color: rgba(15,23,42,.45); }
+    html.light ::-webkit-scrollbar-track { background:#f1f5f9; } html.light ::-webkit-scrollbar-thumb { background:#cbd5e1; } html.light ::-webkit-scrollbar-thumb:hover { background:#94a3b8; }
+    html.light input, html.light select { color-scheme: light; }
+
     @media print {
       .no-print { display: none !important; }
       body { background: white !important; color: black !important; }
@@ -174,6 +251,9 @@
           <button id="btn-admin" onclick="openAdminPanel()" class="hidden px-3 py-1.5 text-xs font-medium text-amber-300 hover:text-amber-200 bg-amber-950/40 hover:bg-amber-900/60 border border-amber-800/50 rounded-lg transition-all items-center gap-1.5">
             <i class="fa-solid fa-user-shield"></i><span class="hidden sm:inline">Admin</span>
           </button>
+          <button id="btn-theme" onclick="toggleTheme()" class="px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700 rounded-lg transition-all flex items-center gap-1.5" title="Switch light / dark theme">
+            <i id="theme-icon" class="fa-solid fa-sun"></i>
+          </button>
           <button onclick="changePasswordPrompt()" class="px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700 rounded-lg transition-all flex items-center gap-1.5" title="Change password">
             <i class="fa-solid fa-lock"></i>
           </button>
@@ -213,7 +293,7 @@
         </div>
         <div>
           <div class="text-2xl font-bold text-white tracking-tight" id="metric-income">₱0.00</div>
-          <div class="text-xs text-slate-400 mt-1">Monthly net earnings</div>
+          <div class="text-xs text-slate-400 mt-1" id="metric-income-sub">Monthly net earnings</div>
         </div>
       </div>
 
@@ -388,7 +468,7 @@
           <div>
             <h3 class="text-sm font-bold text-white">Get Started with Your Financial Tracker</h3>
             <p class="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
-              Begin by entering your monthly take-home income and recurring expenses in the Income & Expense Manager, then add your active loans to start simulating payoff dates.
+              Begin by adding your income sources (salary, sideline, online work) and recurring expenses in the Income & Expense Manager, then add your active loans to start simulating payoff dates.
             </p>
           </div>
         </div>
@@ -400,23 +480,41 @@
 
     <section id="tab-budget" class="tab-content hidden space-y-6">
       
-      <!-- Income Settings Card -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <!-- Income Sources Table -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+        <div class="p-6 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h3 class="text-sm font-bold text-white flex items-center gap-2">
               <i class="fa-solid fa-wallet text-emerald-400"></i>
-              Monthly Income
+              Monthly Income Sources
             </h3>
-            <p class="text-xs text-slate-400">Enter your monthly net take-home salary or income.</p>
+            <p class="text-xs text-slate-400">Add every source of monthly take-home income, e.g. Salary, Sideline, Online Work</p>
           </div>
-          <div class="flex items-center gap-3">
-            <label class="text-xs font-medium text-slate-300">Take-Home Income (₱):</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-semibold text-sm">₱</span>
-              <input type="text" inputmode="decimal" autocomplete="off" data-money id="income-input" value="0" placeholder="0.00" onchange="updateIncome(parseMoney(this.value))" class="bg-slate-800 border border-slate-700 text-white text-sm font-bold rounded-xl pl-8 pr-3 py-2 w-40 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-            </div>
-          </div>
+          <button onclick="openAddIncomeModal()" class="px-3.5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl transition-all flex items-center gap-2 self-start sm:self-auto">
+            <i class="fa-solid fa-plus"></i>
+            Add Income
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950/60 text-slate-400 uppercase font-semibold border-b border-slate-800">
+              <tr>
+                <th class="px-6 py-3">Income Source</th>
+                <th class="px-6 py-3">Type</th>
+                <th class="px-6 py-3 text-right">Monthly Amount (₱)</th>
+                <th class="px-6 py-3 text-center no-print">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="income-table-body" class="divide-y divide-slate-800/60 text-slate-200"></tbody>
+            <tfoot class="bg-slate-950/80 font-bold border-t border-slate-800 text-white">
+              <tr>
+                <td colspan="2" class="px-6 py-4 text-slate-300">Total Monthly Income</td>
+                <td class="px-6 py-4 text-right text-emerald-400 text-sm" id="table-total-income">₱0.00</td>
+                <td class="px-6 py-4 no-print"></td>
+              </tr>
+            </tfoot>
+          </table>
         </div>
       </div>
 
@@ -647,6 +745,46 @@
 
   </main>
 
+  <!-- MODAL: ADD INCOME -->
+  <div id="modal-income" class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 modal-backdrop">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle text-emerald-400"></i>
+          Add Income Source
+        </h3>
+        <button onclick="closeModal('modal-income')" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Source Name</label>
+          <input type="text" id="new-income-name" placeholder="e.g. Company salary, Freelance writing" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Type</label>
+          <select id="new-income-cat" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+            <option value="Salary">Salary</option>
+            <option value="Sideline">Sideline</option>
+            <option value="Online Work">Online Work</option>
+            <option value="Other">Other Income</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Monthly Amount (₱)</label>
+          <input type="text" inputmode="decimal" autocomplete="off" data-money id="new-income-amount" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+        <button onclick="closeModal('modal-income')" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white bg-slate-800 rounded-xl">Cancel</button>
+        <button onclick="addIncomeFromModal()" class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl">Save Income</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: ADD EXPENSE -->
   <div id="modal-expense" class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 modal-backdrop">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
@@ -737,6 +875,24 @@
     </div>
   </div>
 
+  <!-- Admin: password confirmation (before opening another user's profile) -->
+  <div id="modal-elevate" class="fixed inset-0 z-[56] flex items-center justify-center hidden p-4 modal-backdrop">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-xs rounded-2xl p-5 shadow-2xl space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-lock text-slate-400 mr-2"></i>Confirm password</h3>
+        <button onclick="closeElevate()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <input id="elevate-password" type="password" autocomplete="current-password" placeholder="Your password" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+      <p id="elevate-error" class="hidden text-xs text-rose-400"></p>
+      <button id="elevate-submit" onclick="submitElevate()" class="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold">Continue</button>
+    </div>
+  </div>
+
+  <!-- Admin: read-only profile viewer -->
+  <div id="modal-userview" class="fixed inset-0 z-[55] hidden p-4 modal-backdrop overflow-y-auto">
+    <div id="userview-body" class="max-w-4xl mx-auto my-6 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-5"></div>
+  </div>
+
   <!-- Toast Element -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 bg-indigo-600 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl transition-all duration-300 transform translate-y-20 opacity-0 flex items-center gap-2">
     <i class="fa-solid fa-circle-check"></i>
@@ -746,6 +902,7 @@
   <script>
     const BLANK_STATE = {
       income: 0.00,
+      incomes: [],
       expenses: [],
       debts: [],
       allocations: {
@@ -753,13 +910,50 @@
         extraDebt: 0.00
       },
       strategy: 'snowball',
-      extraPayment: 0
+      extraPayment: 0,
+      theme: 'dark'
     };
 
     let state = JSON.parse(JSON.stringify(BLANK_STATE));
     let expenseChartInstance = null;
     let debtChartInstance = null;
     let payoffChartInstance = null;
+
+    // ---------- State normalising (also migrates old single-income data) ----------
+    function incomeTotal(s) {
+      return (s.incomes || []).reduce((sum, i) => sum + (Number(i.amount) || 0), 0);
+    }
+    function normalizeState(raw) {
+      const s = Object.assign(JSON.parse(JSON.stringify(BLANK_STATE)), raw || {});
+      if (!raw || !Array.isArray(raw.incomes)) {
+        // older accounts stored one number; keep it as a "Salary" source
+        s.incomes = Number(s.income) > 0
+          ? [{ id: 'inc-' + Date.now(), name: 'Salary', category: 'Salary', amount: Number(s.income) }]
+          : [];
+      }
+      s.allocations = Object.assign({ savings: 0, extraDebt: 0 }, s.allocations || {});
+      s.theme = s.theme === 'light' ? 'light' : 'dark';
+      s.income = incomeTotal(s);
+      return s;
+    }
+
+    // ---------- Theme (only ever applied after login) ----------
+    function applyTheme(theme) {
+      const light = theme === 'light';
+      document.documentElement.classList.toggle('light', light);
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.className = 'fa-solid ' + (light ? 'fa-moon' : 'fa-sun');
+    }
+    function toggleTheme() {
+      state.theme = state.theme === 'light' ? 'dark' : 'light';
+      applyTheme(state.theme);
+      saveState(); // saves to the account and redraws charts in the new colours
+    }
+    function chartTheme() {
+      return document.documentElement.classList.contains('light')
+        ? { tick: '#64748b', legend: '#475569', grid: '#e2e8f0', border: '#ffffff' }
+        : { tick: '#94a3b8', legend: '#94a3b8', grid: '#1e293b', border: '#0f172a' };
+    }
 
     // ---------- Auth + server persistence ----------
     const LEGACY_KEY = 'ph_finance_blank_tracker_state';
@@ -774,13 +968,13 @@
     async function api(path, opts = {}) {
       const res = await fetch('/api' + path, {
         method: opts.method || 'GET',
-        headers: Object.assign({ 'Content-Type': 'application/json' }, authToken ? { Authorization: 'Bearer ' + authToken } : {}),
+        headers: Object.assign({ 'Content-Type': 'application/json' }, authToken ? { Authorization: 'Bearer ' + authToken } : {}, opts.headers || {}),
         body: opts.body ? JSON.stringify(opts.body) : undefined
       });
       let data = null;
       try { data = await res.json(); } catch (e) {}
       if (res.status === 401 && authToken && !opts.noAutoLogout) { forceLogout('Session expired. Please log in again.'); }
-      if (!res.ok) throw new Error((data && data.error) || 'Request failed (' + res.status + ')');
+      if (!res.ok) { const err = new Error((data && data.error) || 'Request failed (' + res.status + ')'); err.status = res.status; throw err; }
       return data;
     }
 
@@ -847,6 +1041,7 @@
       adminBtn.classList.toggle('hidden', user.role !== 'admin');
       adminBtn.classList.toggle('flex', user.role === 'admin');
       await loadRemoteState();
+      applyTheme(state.theme);
       hideAuthScreen();
       recalculateAndRender();
     }
@@ -854,7 +1049,7 @@
     async function loadRemoteState() {
       const out = await api('/data');
       if (out.data) {
-        state = Object.assign(JSON.parse(JSON.stringify(BLANK_STATE)), out.data);
+        state = normalizeState(out.data);
         return;
       }
       state = JSON.parse(JSON.stringify(BLANK_STATE));
@@ -862,7 +1057,7 @@
       try {
         const legacy = localStorage.getItem(LEGACY_KEY);
         if (legacy && confirm('Found finance data saved in this browser from before accounts existed. Import it into your account?')) {
-          state = Object.assign(state, JSON.parse(legacy));
+          state = normalizeState(JSON.parse(legacy));
           await api('/data', { method: 'PUT', body: { data: state } });
         }
       } catch (e) { console.error('Legacy import failed', e); }
@@ -871,7 +1066,10 @@
     function forceLogout(msg) {
       setToken(null); currentUser = null;
       state = JSON.parse(JSON.stringify(BLANK_STATE));
+      adminElevation = null; pendingViewUser = null;
+      closeUserView(); closeElevate();
       closeModal('modal-admin');
+      applyTheme('dark'); // login screen is always dark
       showAuthScreen(msg || '');
     }
     function logout() {
@@ -942,6 +1140,7 @@
             ${self ? '<span class="ml-1 text-[10px] text-slate-500">(you)</span>' : ''}
           </div>
           <div class="flex gap-1 text-xs">
+            ${self ? '' : `<button onclick="adminViewUser('${n}')" class="px-2 py-1 rounded bg-slate-700/60 hover:bg-slate-600 text-slate-400" title="View profile"><i class="fa-regular fa-eye"></i></button>`}
             <button onclick="adminResetPassword('${n}')" class="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600">Reset password</button>
             ${self ? '' : `
             <button onclick="adminToggleRole('${n}','${u.role}')" class="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600">${u.role === 'admin' ? 'Make user' : 'Make admin'}</button>
@@ -994,8 +1193,105 @@
       adminAction(() => api('/admin/users/' + encodeURIComponent(u), { method: 'DELETE' }), 'User deleted.');
     }
 
+    // ---------- Admin: view another user's profile (read-only, password-confirmed) ----------
+    let adminElevation = null;   // { token, exp } kept in memory only, never stored
+    let pendingViewUser = null;
+    const elevationValid = () => !!adminElevation && adminElevation.exp > Date.now() + 5000;
+
+    function adminViewUser(username) {
+      pendingViewUser = username;
+      if (elevationValid()) openUserView(username); else openElevate();
+    }
+    function openElevate() {
+      const input = document.getElementById('elevate-password');
+      input.value = '';
+      document.getElementById('elevate-error').classList.add('hidden');
+      document.getElementById('modal-elevate').classList.remove('hidden');
+      setTimeout(() => input.focus(), 50);
+    }
+    function closeElevate() {
+      const input = document.getElementById('elevate-password');
+      if (input) input.value = '';
+      document.getElementById('modal-elevate').classList.add('hidden');
+    }
+    async function submitElevate() {
+      const input = document.getElementById('elevate-password');
+      const err = document.getElementById('elevate-error');
+      const btn = document.getElementById('elevate-submit');
+      if (!input.value) return;
+      btn.disabled = true; btn.classList.add('opacity-60'); err.classList.add('hidden');
+      try {
+        const out = await api('/admin/verify', { method: 'POST', body: { password: input.value } });
+        adminElevation = { token: out.token, exp: out.expiresAt };
+        const target = pendingViewUser;
+        closeElevate();
+        if (target) await openUserView(target);
+      } catch (e) {
+        err.textContent = e.message; err.classList.remove('hidden'); input.value = '';
+      } finally { btn.disabled = false; btn.classList.remove('opacity-60'); }
+    }
+    async function openUserView(username) {
+      try {
+        const out = await api('/admin/view/' + encodeURIComponent(username), { headers: { 'X-Admin-Access': adminElevation ? adminElevation.token : '' } });
+        document.getElementById('userview-body').innerHTML = renderUserView(out.user, out.data);
+        document.getElementById('modal-userview').classList.remove('hidden');
+      } catch (e) {
+        if (e.status === 403) { adminElevation = null; pendingViewUser = username; openElevate(); }
+        else showToast(e.message, true);
+      }
+    }
+    function closeUserView() {
+      document.getElementById('modal-userview').classList.add('hidden');
+      document.getElementById('userview-body').innerHTML = '';
+    }
+    function renderUserView(user, raw) {
+      const s = normalizeState(raw);
+      const t = calculateTotals(s);
+      const stat = (label, val, cls) => `<div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">${label}</div>
+        <div class="text-base font-bold ${cls} mt-1">${formatCurrency(val)}</div></div>`;
+      const row = (name, sub, right) => `<div class="flex items-center justify-between gap-3 bg-slate-800/60 border border-slate-700/60 rounded-lg px-3 py-2 text-xs">
+        <div class="min-w-0"><span class="font-semibold text-white">${escapeHtml(name)}</span>${sub ? `<span class="text-slate-400 ml-2">${escapeHtml(sub)}</span>` : ''}</div>
+        <div class="font-bold text-slate-100 shrink-0 text-right">${right}</div></div>`;
+      const section = (title, rows, empty) => `<section><h4 class="text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">${title}</h4>${
+        rows.length ? `<div class="space-y-1.5">${rows.join('')}</div>` : `<p class="text-xs text-slate-500 italic">${empty}</p>`}</section>`;
+
+      const incomeRows = s.incomes.map(i => row(i.name, i.category, formatCurrency(i.amount)));
+      const expenseRows = s.expenses.map(e => row(e.name, e.category, formatCurrency(e.amount)));
+      const debtRows = s.debts.map(d => row(d.name, d.notes,
+        `${formatCurrency(d.balance)} <span class="text-slate-400 font-normal">borrowed · ${formatCurrency(d.monthly)}/mo${Number(d.term) > 0 ? ' × ' + d.term : ''}</span>`));
+
+      return `
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h2 class="font-bold text-white text-lg">${escapeHtml(user.username)}
+              <span class="ml-2 text-[10px] uppercase px-1.5 py-0.5 rounded ${user.role === 'admin' ? 'bg-amber-500/20 text-amber-300' : 'bg-indigo-500/20 text-indigo-300'}">${escapeHtml(user.role)}</span>
+              ${user.disabled ? '<span class="ml-1 text-[10px] uppercase px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300">disabled</span>' : ''}
+            </h2>
+            <p class="text-xs text-slate-400">Read-only view${raw ? '' : ' · no data saved yet'}</p>
+          </div>
+          <button onclick="closeUserView()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+          ${stat('Income', t.income, 'text-emerald-400')}
+          ${stat('Expenses', t.totalMonthlyExpenses, 'text-rose-400')}
+          ${stat('Monthly debts', t.totalMonthlyDebtPayments, 'text-amber-300')}
+          ${stat('Remaining', t.remainingCash, t.remainingCash < 0 ? 'text-rose-400' : 'text-emerald-400')}
+          ${stat('Total debt', t.totalOutstandingDebt, 'text-purple-300')}
+        </div>
+        ${section('Income sources', incomeRows, 'No income sources.')}
+        ${section('Expenses', expenseRows, 'No expenses.')}
+        ${section('Loans', debtRows, 'No loans.')}
+        ${section('Allocations', [
+          row('Emergency savings', '', formatCurrency(s.allocations.savings)),
+          row('Extra debt principal', '', formatCurrency(s.allocations.extraDebt))], '')}
+      `;
+    }
+
     function clearAllData() {
+      const keepTheme = state.theme;
       state = JSON.parse(JSON.stringify(BLANK_STATE));
+      state.theme = keepTheme;
       saveState();
       showToast("Cleared all data to fresh zero state.");
     }
@@ -1038,16 +1334,18 @@
       return '₱' + Number(num || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    function calculateTotals() {
-      const totalNonLoanExpenses = state.expenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
-      const totalMonthlyDebtPayments = state.debts.reduce((sum, item) => sum + (Number(item.monthly) || 0), 0);
+    function calculateTotals(st = state) {
+      const income = incomeTotal(st);
+      const totalNonLoanExpenses = st.expenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+      const totalMonthlyDebtPayments = st.debts.reduce((sum, item) => sum + (Number(item.monthly) || 0), 0);
       const totalMonthlyExpenses = totalNonLoanExpenses + totalMonthlyDebtPayments;
-      const totalOutstandingDebt = state.debts.reduce((sum, item) => sum + (Number(item.balance) || 0), 0);
-      const remainingCash = state.income - totalMonthlyExpenses;
-      const expenseRate = state.income > 0 ? (totalMonthlyExpenses / state.income) * 100 : 0;
-      const debtRatio = state.income > 0 ? (totalMonthlyDebtPayments / state.income) * 100 : 0;
+      const totalOutstandingDebt = st.debts.reduce((sum, item) => sum + (Number(item.balance) || 0), 0);
+      const remainingCash = income - totalMonthlyExpenses;
+      const expenseRate = income > 0 ? (totalMonthlyExpenses / income) * 100 : 0;
+      const debtRatio = income > 0 ? (totalMonthlyDebtPayments / income) * 100 : 0;
 
       return {
+        income,
         totalNonLoanExpenses,
         totalMonthlyDebtPayments,
         totalMonthlyExpenses,
@@ -1059,10 +1357,13 @@
     }
 
     function recalculateAndRender() {
+      state.income = incomeTotal(state); // always the sum of the income sources
       const totals = calculateTotals();
 
       // Update Dashboard Metric Cards
       document.getElementById('metric-income').textContent = formatCurrency(state.income);
+      const nSrc = state.incomes.length;
+      document.getElementById('metric-income-sub').textContent = nSrc ? `Monthly total from ${nSrc} source${nSrc > 1 ? 's' : ''}` : 'Add your income sources';
       document.getElementById('metric-expenses').textContent = formatCurrency(totals.totalMonthlyExpenses);
       document.getElementById('metric-expense-rate').textContent = `${totals.expenseRate.toFixed(1)}% of income`;
       
@@ -1094,10 +1395,8 @@
       document.getElementById('legend-savings-val').textContent = formatCurrency(savingsAmt);
       document.getElementById('legend-remaining-val').textContent = formatCurrency(remainingAfterSavings);
 
-      // Sync Income Input
-      document.getElementById('income-input').value = state.income ? moneyStr(state.income) : '';
-
       // Render Tables and Cards
+      renderIncomeTable(totals);
       renderExpenseTable(totals);
       renderDebtCards();
       renderAllocations(totals);
@@ -1106,6 +1405,7 @@
     }
 
     function updateCharts(totals) {
+      const ct = chartTheme();
       // 1. Expense Chart
       const ctxExpense = document.getElementById('expenseChart').getContext('2d');
       const emptyExpNotice = document.getElementById('expense-chart-empty');
@@ -1141,7 +1441,7 @@
               data: expData,
               backgroundColor: expLabels.map((l, i) => l === 'Savings' ? '#a3e635' : ['#10b981', '#3b82f6', '#06b6d4', '#8b5cf6', '#f59e0b', '#ec4899'][i % 6]),
               borderWidth: 2,
-              borderColor: '#0f172a'
+              borderColor: ct.border
             }]
           },
           options: {
@@ -1150,7 +1450,7 @@
             plugins: {
               legend: {
                 position: 'right',
-                labels: { color: '#94a3b8', font: { family: 'Inter', size: 11 } }
+                labels: { color: ct.legend, font: { family: 'Inter', size: 11 } }
               },
               tooltip: {
                 callbacks: {
@@ -1197,8 +1497,8 @@
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-              x: { ticks: { color: '#94a3b8', font: { family: 'Inter', size: 10 } }, grid: { display: false } },
-              y: { ticks: { color: '#94a3b8', font: { family: 'Inter', size: 10 } }, grid: { color: '#1e293b' } }
+              x: { ticks: { color: ct.tick, font: { family: 'Inter', size: 10 } }, grid: { display: false } },
+              y: { ticks: { color: ct.tick, font: { family: 'Inter', size: 10 } }, grid: { color: ct.grid } }
             }
           }
         });
@@ -1349,6 +1649,7 @@
     }
 
     function updatePayoffSimulation() {
+      const ct = chartTheme();
       const extra = Number(state.extraPayment) || 0;
       const totalBaseMonthly = state.debts.reduce((sum, d) => sum + (Number(d.monthly) || 0), 0);
       const totalMonthlyAllocated = totalBaseMonthly + extra;
@@ -1442,8 +1743,8 @@
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
-            x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
-            y: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: '#1e293b' } }
+            x: { ticks: { color: ct.tick, font: { size: 9 } }, grid: { display: false } },
+            y: { ticks: { color: ct.tick, font: { size: 9 } }, grid: { color: ct.grid } }
           }
         }
       });
@@ -1474,10 +1775,69 @@
       showToast("Updated surplus allocations.");
     }
 
-    function updateIncome(val) {
-      state.income = Number(val) || 0;
+    function renderIncomeTable(totals) {
+      const tbody = document.getElementById('income-table-body');
+      tbody.innerHTML = '';
+      if (state.incomes.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-slate-500 italic">No income sources yet. Click "+ Add Income" to add your salary, sideline or online work.</td></tr>`;
+      } else {
+        state.incomes.forEach(inc => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-800/40 transition-colors';
+          tr.innerHTML = `
+            <td class="px-6 py-3.5 font-semibold text-white">${escapeHtml(inc.name)}</td>
+            <td class="px-6 py-3.5">
+              <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700">${escapeHtml(inc.category || 'Other')}</span>
+            </td>
+            <td class="px-6 py-3.5 text-right font-bold text-slate-100">
+              <div class="flex items-center justify-end gap-1">
+                <span>₱</span>
+                <input type="text" inputmode="decimal" autocomplete="off" data-money value="${moneyStr(inc.amount)}" onchange="updateIncomeAmount('${inc.id}', parseMoney(this.value))" class="bg-slate-950 border border-slate-800 text-right w-28 px-2 py-1 rounded-lg text-xs focus:ring-1 focus:ring-indigo-500 font-bold text-emerald-400">
+              </div>
+            </td>
+            <td class="px-6 py-3.5 text-center no-print">
+              <button onclick="deleteIncome('${inc.id}')" class="text-slate-500 hover:text-rose-400 p-1 transition-colors" title="Delete record">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      }
+      document.getElementById('table-total-income').textContent = formatCurrency(totals.income);
+    }
+
+    function openAddIncomeModal() {
+      document.getElementById('modal-income').classList.remove('hidden');
+    }
+
+    function addIncomeFromModal() {
+      const name = document.getElementById('new-income-name').value.trim();
+      const cat = document.getElementById('new-income-cat').value;
+      const amt = parseMoney(document.getElementById('new-income-amount').value);
+      if (!name || !(amt > 0)) {
+        showToast("Please enter an income source name and amount.", true);
+        return;
+      }
+      state.incomes.push({ id: 'inc-' + Date.now(), name: name, category: cat, amount: amt });
+      document.getElementById('new-income-name').value = '';
+      document.getElementById('new-income-amount').value = '';
+      closeModal('modal-income');
       saveState();
-      showToast("Updated monthly income.");
+      showToast("Income source added.");
+    }
+
+    function updateIncomeAmount(id, val) {
+      const item = state.incomes.find(i => i.id === id);
+      if (item) {
+        item.amount = Number(val) || 0;
+        saveState();
+      }
+    }
+
+    function deleteIncome(id) {
+      state.incomes = state.incomes.filter(i => i.id !== id);
+      saveState();
+      showToast("Income source removed.");
     }
 
     function updateExpenseAmount(id, val) {
@@ -1617,7 +1977,10 @@
       let csvContent = "data:text/csv;charset=utf-8,";
       csvContent += "Type,Name,Category/Notes,Amount (PHP)\n";
 
-      csvContent += `Income,Monthly Income,Earnings,${state.income}\n`;
+      state.incomes.forEach(i => {
+        csvContent += `Income,"${i.name.replace(/"/g, '""')}",${i.category || 'Other'},${i.amount}\n`;
+      });
+      csvContent += `Summary,Total Monthly Income,Earnings,${totals.income}\n`;
       
       state.expenses.forEach(e => {
         csvContent += `Expense,"${e.name.replace(/"/g, '""')}",${e.category},${e.amount}\n`;
@@ -1687,6 +2050,7 @@
     window.onload = async function() {
       document.getElementById('auth-password').addEventListener('keydown', e => { if (e.key === 'Enter') submitAuth(); });
       document.getElementById('auth-code').addEventListener('keydown', e => { if (e.key === 'Enter') submitAuth(); });
+      document.getElementById('elevate-password').addEventListener('keydown', e => { if (e.key === 'Enter') submitElevate(); });
       if (authToken) {
         try {
           const me = await api('/me', { noAutoLogout: true });
