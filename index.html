@@ -75,6 +75,8 @@
       backdrop-filter: blur(4px);
     }
     
+    body.locked > header, body.locked > main { display: none !important; }
+
     @media print {
       .no-print { display: none !important; }
       body { background: white !important; color: black !important; }
@@ -82,7 +84,77 @@
     }
   </style>
 </head>
-<body class="h-full bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+<body class="locked h-full bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- ===== AUTH SCREEN ===== -->
+  <div id="auth-screen" class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-slate-950 overflow-y-auto">
+    <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <i class="fa-solid fa-wallet text-white text-lg"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-lg text-white leading-tight">Personal Finance Tracker</h1>
+          <p class="text-xs text-slate-400">Sign in to continue</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-1 p-1 bg-slate-800/60 rounded-lg mb-4 text-sm font-semibold">
+        <button id="auth-tab-login" onclick="setAuthMode('login')" class="py-1.5 rounded-md transition-all">Log in</button>
+        <button id="auth-tab-register" onclick="setAuthMode('register')" class="py-1.5 rounded-md transition-all">Create account</button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Username</label>
+          <input id="auth-username" type="text" autocomplete="username" autocapitalize="none" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Password</label>
+          <input id="auth-password" type="password" autocomplete="current-password" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+        </div>
+        <div id="auth-code-wrap" class="hidden">
+          <label class="block text-xs text-slate-400 mb-1">Registration code <span class="text-slate-500">(one-time, from the admin)</span></label>
+          <input id="auth-code" type="text" autocomplete="off" placeholder="XXXXX-XXXXX" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm font-mono tracking-widest uppercase focus:outline-none focus:border-indigo-500">
+        </div>
+        <p id="auth-error" class="hidden text-xs text-rose-400"></p>
+        <button id="auth-submit" onclick="submitAuth()" class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-all">Log in</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN PANEL ===== -->
+  <div id="modal-admin" class="fixed inset-0 z-50 hidden p-4 modal-backdrop overflow-y-auto">
+    <div class="max-w-3xl mx-auto my-6 bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-7">
+      <div class="flex items-center justify-between">
+        <h2 class="font-bold text-white text-lg"><i class="fa-solid fa-user-shield text-indigo-400 mr-2"></i>Admin Panel</h2>
+        <button onclick="closeModal('modal-admin')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <section>
+        <h3 class="text-sm font-semibold text-white mb-1">Registration codes</h3>
+        <p class="text-xs text-slate-400 mb-3">Each code works once. Send it to the person you want to allow to sign up.</p>
+        <div class="flex flex-wrap gap-2 mb-3">
+          <input id="code-note" type="text" maxlength="60" placeholder="Note (e.g. who it's for)" class="flex-1 min-w-[160px] bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+          <input id="code-count" type="number" min="1" max="20" value="1" class="w-20 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+          <button onclick="adminGenerateCodes()" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold"><i class="fa-solid fa-key mr-1"></i>Generate</button>
+        </div>
+        <div id="admin-codes" class="space-y-1.5 max-h-64 overflow-y-auto"></div>
+      </section>
+
+      <section>
+        <h3 class="text-sm font-semibold text-white mb-3">Users</h3>
+        <div class="flex flex-wrap gap-2 mb-3">
+          <input id="nu-username" type="text" placeholder="Username" autocapitalize="none" class="flex-1 min-w-[120px] bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+          <input id="nu-password" type="text" placeholder="Password (min 8)" class="flex-1 min-w-[120px] bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+          <select id="nu-role" class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm"><option value="user">user</option><option value="admin">admin</option></select>
+          <button onclick="adminCreateUser()" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold"><i class="fa-solid fa-user-plus mr-1"></i>Add</button>
+        </div>
+        <div id="admin-users" class="space-y-1.5"></div>
+      </section>
+    </div>
+  </div>
+
 
   <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,6 +170,17 @@
         </div>
 
         <div class="flex items-center gap-2">
+          <span id="user-chip" class="hidden sm:inline text-xs text-slate-400 mr-1"></span>
+          <button id="btn-admin" onclick="openAdminPanel()" class="hidden px-3 py-1.5 text-xs font-medium text-amber-300 hover:text-amber-200 bg-amber-950/40 hover:bg-amber-900/60 border border-amber-800/50 rounded-lg transition-all items-center gap-1.5">
+            <i class="fa-solid fa-user-shield"></i><span class="hidden sm:inline">Admin</span>
+          </button>
+          <button onclick="changePasswordPrompt()" class="px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700 rounded-lg transition-all flex items-center gap-1.5" title="Change password">
+            <i class="fa-solid fa-lock"></i>
+          </button>
+          <button onclick="logout()" class="px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700 rounded-lg transition-all flex items-center gap-1.5" title="Log out">
+            <i class="fa-solid fa-right-from-bracket"></i><span class="hidden sm:inline">Log out</span>
+          </button>
+          
           <button onclick="clearAllData()" class="px-3 py-1.5 text-xs font-medium text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/50 rounded-lg transition-all flex items-center gap-1.5" title="Clear all data to zero state">
             <i class="fa-solid fa-trash-can"></i>
             <span class="hidden sm:inline">Clear All Data</span>
@@ -663,30 +746,242 @@
       extraPayment: 0
     };
 
-    let state = loadState();
+    let state = JSON.parse(JSON.stringify(BLANK_STATE));
     let expenseChartInstance = null;
     let debtChartInstance = null;
     let payoffChartInstance = null;
 
-    function loadState() {
-      try {
-        const saved = localStorage.getItem('ph_finance_blank_tracker_state');
-        if (saved) {
-          return JSON.parse(saved);
-        }
-      } catch (e) {
-        console.error("Failed to read localStorage", e);
-      }
-      return JSON.parse(JSON.stringify(BLANK_STATE));
+    // ---------- Auth + server persistence ----------
+    const LEGACY_KEY = 'ph_finance_blank_tracker_state';
+    const TOKEN_KEY = 'ft_token';
+    let authToken = null;
+    let currentUser = null;
+    let authMode = 'login';
+    let saveTimer = null;
+
+    try { authToken = localStorage.getItem(TOKEN_KEY); } catch (e) {}
+
+    async function api(path, opts = {}) {
+      const res = await fetch('/api' + path, {
+        method: opts.method || 'GET',
+        headers: Object.assign({ 'Content-Type': 'application/json' }, authToken ? { Authorization: 'Bearer ' + authToken } : {}),
+        body: opts.body ? JSON.stringify(opts.body) : undefined
+      });
+      let data = null;
+      try { data = await res.json(); } catch (e) {}
+      if (res.status === 401 && authToken && !opts.noAutoLogout) { forceLogout('Session expired. Please log in again.'); }
+      if (!res.ok) throw new Error((data && data.error) || 'Request failed (' + res.status + ')');
+      return data;
     }
 
-    function saveState() {
+    function setToken(t) {
+      authToken = t;
+      try { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); } catch (e) {}
+    }
+
+    function showAuthScreen(msg) {
+      document.body.classList.add('locked');
+      const el = document.getElementById('auth-screen');
+      el.classList.remove('hidden'); el.classList.add('flex');
+      setAuthMode(authMode);
+      if (msg) showAuthError(msg);
+    }
+    function hideAuthScreen() {
+      document.body.classList.remove('locked');
+      const el = document.getElementById('auth-screen');
+      el.classList.add('hidden'); el.classList.remove('flex');
+      document.getElementById('auth-password').value = '';
+    }
+    function showAuthError(msg) {
+      const e = document.getElementById('auth-error');
+      e.textContent = msg; e.classList.toggle('hidden', !msg);
+    }
+    function setAuthMode(mode) {
+      authMode = mode;
+      const reg = mode === 'register';
+      document.getElementById('auth-code-wrap').classList.toggle('hidden', !reg);
+      document.getElementById('auth-submit').textContent = reg ? 'Create account' : 'Log in';
+      document.getElementById('auth-password').autocomplete = reg ? 'new-password' : 'current-password';
+      const on = 'bg-indigo-600 text-white', off = 'text-slate-400 hover:text-white';
+      document.getElementById('auth-tab-login').className = 'py-1.5 rounded-md transition-all ' + (reg ? off : on);
+      document.getElementById('auth-tab-register').className = 'py-1.5 rounded-md transition-all ' + (reg ? on : off);
+      showAuthError('');
+    }
+
+    async function submitAuth() {
+      const username = document.getElementById('auth-username').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const btn = document.getElementById('auth-submit');
+      showAuthError('');
+      if (!username || !password) { showAuthError('Enter your username and password.'); return; }
+      const body = { username, password };
+      if (authMode === 'register') body.code = document.getElementById('auth-code').value.trim();
+      btn.disabled = true; btn.classList.add('opacity-60');
       try {
-        localStorage.setItem('ph_finance_blank_tracker_state', JSON.stringify(state));
+        setToken(null);
+        const out = await api(authMode === 'register' ? '/register' : '/login', { method: 'POST', body });
+        setToken(out.token);
+        document.getElementById('auth-code').value = '';
+        await enterApp(out.user);
       } catch (e) {
-        console.error("Failed to save localStorage", e);
+        showAuthError(e.message);
+      } finally {
+        btn.disabled = false; btn.classList.remove('opacity-60');
       }
+    }
+
+    async function enterApp(user) {
+      currentUser = user;
+      document.getElementById('user-chip').textContent = user.username + (user.role === 'admin' ? ' (admin)' : '');
+      const adminBtn = document.getElementById('btn-admin');
+      adminBtn.classList.toggle('hidden', user.role !== 'admin');
+      adminBtn.classList.toggle('flex', user.role === 'admin');
+      await loadRemoteState();
+      hideAuthScreen();
       recalculateAndRender();
+    }
+
+    async function loadRemoteState() {
+      const out = await api('/data');
+      if (out.data) {
+        state = Object.assign(JSON.parse(JSON.stringify(BLANK_STATE)), out.data);
+        return;
+      }
+      state = JSON.parse(JSON.stringify(BLANK_STATE));
+      // One-time migration of data previously kept only in this browser
+      try {
+        const legacy = localStorage.getItem(LEGACY_KEY);
+        if (legacy && confirm('Found finance data saved in this browser from before accounts existed. Import it into your account?')) {
+          state = Object.assign(state, JSON.parse(legacy));
+          await api('/data', { method: 'PUT', body: { data: state } });
+        }
+      } catch (e) { console.error('Legacy import failed', e); }
+    }
+
+    function forceLogout(msg) {
+      setToken(null); currentUser = null;
+      state = JSON.parse(JSON.stringify(BLANK_STATE));
+      closeModal('modal-admin');
+      showAuthScreen(msg || '');
+    }
+    function logout() {
+      if (saveTimer) { clearTimeout(saveTimer); persistNow(); }
+      forceLogout('');
+      setAuthMode('login');
+    }
+
+    async function changePasswordPrompt() {
+      const cur = prompt('Current password:'); if (cur === null) return;
+      const next = prompt('New password (min 8 characters):'); if (next === null) return;
+      try { await api('/password', { method: 'POST', body: { currentPassword: cur, newPassword: next } }); showToast('Password changed.'); }
+      catch (e) { showToast(e.message, true); }
+    }
+
+    function persistNow() {
+      saveTimer = null;
+      if (!authToken) return;
+      api('/data', { method: 'PUT', body: { data: state } })
+        .catch(e => showToast('Could not save: ' + e.message, true));
+    }
+    function saveState() {
+      if (saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(persistNow, 500);
+      recalculateAndRender();
+    }
+    window.addEventListener('beforeunload', () => { if (saveTimer) { clearTimeout(saveTimer); persistNow(); } });
+
+    // ---------- Admin panel ----------
+    async function openAdminPanel() {
+      document.getElementById('modal-admin').classList.remove('hidden');
+      await refreshAdmin();
+    }
+    async function refreshAdmin() {
+      try {
+        const [u, c] = await Promise.all([api('/admin/users'), api('/admin/codes')]);
+        renderAdminUsers(u.users); renderAdminCodes(c.codes);
+      } catch (e) { showToast(e.message, true); }
+    }
+
+    function renderAdminCodes(list) {
+      const el = document.getElementById('admin-codes');
+      if (!list.length) { el.innerHTML = '<p class="text-xs text-slate-500">No codes yet.</p>'; return; }
+      el.innerHTML = list.map(c => {
+        const used = !!c.usedBy;
+        return `<div class="flex items-center justify-between gap-2 bg-slate-800/60 border border-slate-700/60 rounded-lg px-3 py-2">
+          <div class="min-w-0">
+            <span class="font-mono tracking-widest text-sm ${used ? 'text-slate-500 line-through' : 'text-emerald-300'}">${escapeHtml(c.code)}</span>
+            <span class="text-xs text-slate-400 ml-2">${used ? 'used by ' + escapeHtml(c.usedBy) : 'available'}${c.note ? ' · ' + escapeHtml(c.note) : ''}</span>
+          </div>
+          <div class="flex gap-1 shrink-0">
+            ${used ? '' : `<button onclick="copyCode('${escapeHtml(c.code)}')" class="px-2 py-1 text-xs rounded bg-slate-700 hover:bg-slate-600"><i class="fa-regular fa-copy"></i></button>`}
+            <button onclick="adminDeleteCode('${escapeHtml(c.code)}')" class="px-2 py-1 text-xs rounded bg-rose-900/60 hover:bg-rose-800 text-rose-200"><i class="fa-solid fa-trash"></i></button>
+          </div></div>`;
+      }).join('');
+    }
+
+    function renderAdminUsers(list) {
+      const el = document.getElementById('admin-users');
+      el.innerHTML = list.map(u => {
+        const self = currentUser && u.username.toLowerCase() === currentUser.username.toLowerCase();
+        const n = escapeHtml(u.username);
+        return `<div class="flex flex-wrap items-center justify-between gap-2 bg-slate-800/60 border border-slate-700/60 rounded-lg px-3 py-2">
+          <div class="text-sm">
+            <span class="font-semibold text-white">${n}</span>
+            <span class="ml-2 text-[10px] uppercase px-1.5 py-0.5 rounded ${u.role === 'admin' ? 'bg-amber-500/20 text-amber-300' : 'bg-indigo-500/20 text-indigo-300'}">${u.role}</span>
+            ${u.disabled ? '<span class="ml-1 text-[10px] uppercase px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300">disabled</span>' : ''}
+            ${self ? '<span class="ml-1 text-[10px] text-slate-500">(you)</span>' : ''}
+          </div>
+          <div class="flex gap-1 text-xs">
+            <button onclick="adminResetPassword('${n}')" class="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600">Reset password</button>
+            ${self ? '' : `
+            <button onclick="adminToggleRole('${n}','${u.role}')" class="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600">${u.role === 'admin' ? 'Make user' : 'Make admin'}</button>
+            <button onclick="adminToggleDisabled('${n}',${!u.disabled})" class="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600">${u.disabled ? 'Enable' : 'Disable'}</button>
+            <button onclick="adminDeleteUser('${n}')" class="px-2 py-1 rounded bg-rose-900/60 hover:bg-rose-800 text-rose-200"><i class="fa-solid fa-trash"></i></button>`}
+          </div></div>`;
+      }).join('');
+    }
+
+    async function adminAction(fn, okMsg) {
+      try { await fn(); if (okMsg) showToast(okMsg); await refreshAdmin(); }
+      catch (e) { showToast(e.message, true); }
+    }
+    function adminGenerateCodes() {
+      adminAction(() => api('/admin/codes', { method: 'POST', body: {
+        count: document.getElementById('code-count').value,
+        note: document.getElementById('code-note').value } }), 'Code(s) generated.');
+      document.getElementById('code-note').value = '';
+    }
+    function adminDeleteCode(code) {
+      if (!confirm('Delete code ' + code + '?')) return;
+      adminAction(() => api('/admin/codes/' + encodeURIComponent(code), { method: 'DELETE' }), 'Code deleted.');
+    }
+    function copyCode(code) {
+      (navigator.clipboard ? navigator.clipboard.writeText(code) : Promise.reject())
+        .then(() => showToast('Copied ' + code)).catch(() => prompt('Copy this code:', code));
+    }
+    function adminCreateUser() {
+      const body = {
+        username: document.getElementById('nu-username').value.trim(),
+        password: document.getElementById('nu-password').value,
+        role: document.getElementById('nu-role').value };
+      adminAction(async () => {
+        await api('/admin/users', { method: 'POST', body });
+        document.getElementById('nu-username').value = ''; document.getElementById('nu-password').value = '';
+      }, 'User created.');
+    }
+    function adminResetPassword(u) {
+      const pw = prompt('New password for ' + u + ' (min 8 characters):'); if (!pw) return;
+      adminAction(() => api('/admin/users/' + encodeURIComponent(u), { method: 'PUT', body: { password: pw } }), 'Password reset.');
+    }
+    function adminToggleRole(u, role) {
+      adminAction(() => api('/admin/users/' + encodeURIComponent(u), { method: 'PUT', body: { role: role === 'admin' ? 'user' : 'admin' } }), 'Role updated.');
+    }
+    function adminToggleDisabled(u, disabled) {
+      adminAction(() => api('/admin/users/' + encodeURIComponent(u), { method: 'PUT', body: { disabled } }), disabled ? 'User disabled.' : 'User enabled.');
+    }
+    function adminDeleteUser(u) {
+      if (!confirm('Delete user "' + u + '" and all their finance data? This cannot be undone.')) return;
+      adminAction(() => api('/admin/users/' + encodeURIComponent(u), { method: 'DELETE' }), 'User deleted.');
     }
 
     function clearAllData() {
@@ -1269,8 +1564,17 @@
       return String(str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 
-    window.onload = function() {
-      recalculateAndRender();
+    window.onload = async function() {
+      document.getElementById('auth-password').addEventListener('keydown', e => { if (e.key === 'Enter') submitAuth(); });
+      document.getElementById('auth-code').addEventListener('keydown', e => { if (e.key === 'Enter') submitAuth(); });
+      if (authToken) {
+        try {
+          const me = await api('/me', { noAutoLogout: true });
+          await enterApp(me.user);
+          return;
+        } catch (e) { setToken(null); }
+      }
+      showAuthScreen('');
     };
   </script>
 </body>
