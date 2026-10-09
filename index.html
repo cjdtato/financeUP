@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Personal Finance Tracker (Blank Slate)</title>
+  
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .modal-backdrop {
+      background-color: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(4px);
+    }
+    
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: black !important; }
+      .print-card { border: 1px solid #ccc !important; background: white !important; color: black !important; box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body class="h-full bg-slate-950 text-slate-100 flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <i class="fa-solid fa-wallet text-white text-lg"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-lg text-white leading-tight">Personal Finance Tracker</h1>
+            <p class="text-xs text-slate-400">Blank Template — Add Your Own Data</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="clearAllData()" class="px-3 py-1.5 text-xs font-medium text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/50 rounded-lg transition-all flex items-center gap-1.5" title="Clear all data to zero state">
+            <i class="fa-solid fa-trash-can"></i>
+            <span class="hidden sm:inline">Clear All Data</span>
+          </button>
+          
+          <button onclick="exportToCSV()" class="px-3 py-1.5 text-xs font-medium text-emerald-400 hover:text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/60 border border-emerald-800/50 rounded-lg transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-file-csv"></i>
+            <span class="hidden sm:inline">Export CSV</span>
+          </button>
+
+          <button onclick="window.print()" class="px-3 py-1.5 text-xs font-medium text-indigo-300 hover:text-indigo-200 bg-indigo-950/50 hover:bg-indigo-900/60 border border-indigo-800/50 rounded-lg transition-all flex items-center gap-1.5">
+            <i class="fa-solid fa-print"></i>
+            <span class="hidden sm:inline">Print / Save PDF</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <!-- Monthly Income Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition-all shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider">Take-Home Income</span>
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+            <i class="fa-solid fa-money-bill-wave text-sm"></i>
+          </div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold text-white tracking-tight" id="metric-income">₱0.00</div>
+          <div class="text-xs text-slate-400 mt-1">Monthly net earnings</div>
+        </div>
+      </div>
+
+      <!-- Total Monthly Expenses Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition-all shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider">Total Expenses</span>
+          <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center">
+            <i class="fa-solid fa-credit-card text-sm"></i>
+          </div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold text-rose-400 tracking-tight" id="metric-expenses">₱0.00</div>
+          <div class="text-xs text-slate-400 mt-1" id="metric-expense-rate">0.0% of income</div>
+        </div>
+      </div>
+
+      <!-- Monthly Debt Service Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition-all shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider">Monthly Debts</span>
+          <div class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
+            <i class="fa-solid fa-hand-holding-dollar text-sm"></i>
+          </div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold text-amber-300 tracking-tight" id="metric-debt-monthly">₱0.00</div>
+          <div class="text-xs text-slate-400 mt-1" id="metric-debt-ratio">0.0% Debt-to-Income</div>
+        </div>
+      </div>
+
+      <!-- Net Remaining Cash Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition-all shadow-sm">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider">Remaining Buffer</span>
+          <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+            <i class="fa-solid fa-piggy-bank text-sm"></i>
+          </div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold text-emerald-400 tracking-tight" id="metric-remaining">₱0.00</div>
+          <div class="text-xs text-slate-400 mt-1">Unallocated cash flow</div>
+        </div>
+      </div>
+
+      <!-- Total Outstanding Debt Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between hover:border-slate-700 transition-all shadow-sm sm:col-span-2 lg:col-span-1">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-xs font-semibold uppercase tracking-wider">Total Debt Load</span>
+          <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center">
+            <i class="fa-solid fa-vault text-sm"></i>
+          </div>
+        </div>
+        <div>
+          <div class="text-2xl font-bold text-purple-300 tracking-tight" id="metric-total-debt">₱0.00</div>
+          <div class="text-xs text-slate-400 mt-1">Combined loan balances</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="border-b border-slate-800 no-print">
+      <nav class="flex space-x-6 overflow-x-auto pb-1" aria-label="Tabs">
+        <button onclick="switchTab('tab-overview')" id="nav-tab-overview" class="tab-btn active border-b-2 border-indigo-500 text-indigo-400 pb-3 text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition-all">
+          <i class="fa-solid fa-chart-pie"></i>
+          Financial Overview
+        </button>
+        <button onclick="switchTab('tab-budget')" id="nav-tab-budget" class="tab-btn border-b-2 border-transparent text-slate-400 hover:text-slate-200 pb-3 text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition-all">
+          <i class="fa-solid fa-list-check"></i>
+          Income & Expense Manager
+        </button>
+        <button onclick="switchTab('tab-debts')" id="nav-tab-debts" class="tab-btn border-b-2 border-transparent text-slate-400 hover:text-slate-200 pb-3 text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition-all">
+          <i class="fa-solid fa-building-columns"></i>
+          Debt Payoff Planner
+        </button>
+        <button onclick="switchTab('tab-allocation')" id="nav-tab-allocation" class="tab-btn border-b-2 border-transparent text-slate-400 hover:text-slate-200 pb-3 text-sm font-semibold flex items-center gap-2 whitespace-nowrap transition-all">
+          <i class="fa-solid fa-scale-balanced"></i>
+          Savings & Surplus Allocator
+        </button>
+      </nav>
+    </div>
+
+    <section id="tab-overview" class="tab-content space-y-6">
+      
+      <!-- Income vs Expenses Progress Gauge -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-gauge-high text-indigo-400"></i>
+              Monthly Income Utilization
+            </h2>
+            <p class="text-xs text-slate-400">How your total income is distributed across required obligations.</p>
+          </div>
+          <div class="text-sm font-bold text-slate-300" id="gauge-label">
+            0% Allocated
+          </div>
+        </div>
+
+        <!-- Multi-segment progress bar -->
+        <div class="w-full bg-slate-800 h-5 rounded-full overflow-hidden flex p-0.5 border border-slate-700/50">
+          <div id="gauge-living" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%" title="Living Expenses"></div>
+          <div id="gauge-debt" class="bg-amber-500 h-full transition-all duration-500" style="width: 0%" title="Debt Payments"></div>
+          <div id="gauge-remaining" class="bg-indigo-500 h-full rounded-r-full transition-all duration-500" style="width: 100%" title="Remaining Surplus"></div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+            <span class="text-slate-300">Living Costs: <strong id="legend-living-val" class="text-white">₱0.00</strong></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
+            <span class="text-slate-300">Debt Installments: <strong id="legend-debt-val" class="text-white">₱0.00</strong></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-indigo-500 inline-block"></span>
+            <span class="text-slate-300">Remaining Surplus: <strong id="legend-remaining-val" class="text-white">₱0.00</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Expense Breakdown Chart -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
+              <i class="fa-solid fa-chart-donut text-emerald-400"></i>
+              Monthly Expenses Breakdown
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">Distribution of outgoing funds by category</p>
+          </div>
+          <div class="relative h-64 flex items-center justify-center">
+            <canvas id="expenseChart"></canvas>
+            <div id="expense-chart-empty" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 text-xs gap-2">
+              <i class="fa-solid fa-folder-open text-2xl"></i>
+              <span>No expense records added yet</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Debt Balance Share Chart -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
+              <i class="fa-solid fa-chart-column text-amber-400"></i>
+              Outstanding Debt Balances
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">Comparison of principal remaining per creditor</p>
+          </div>
+          <div class="relative h-64 flex items-center justify-center">
+            <canvas id="debtChart"></canvas>
+            <div id="debt-chart-empty" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 text-xs gap-2">
+              <i class="fa-solid fa-landmark text-2xl"></i>
+              <span>No loan records added yet</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Start Notice -->
+      <div class="bg-slate-900 border border-indigo-800/40 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center flex-shrink-0 text-xl border border-indigo-500/30">
+            <i class="fa-solid fa-rocket"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Get Started with Your Financial Tracker</h3>
+            <p class="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+              Begin by entering your monthly take-home income and recurring expenses in the Income & Expense Manager, then add your active loans to start simulating payoff dates.
+            </p>
+          </div>
+        </div>
+        <button onclick="switchTab('tab-budget')" class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all whitespace-nowrap shadow-md shadow-indigo-600/20">
+          Enter Income & Expenses &rarr;
+        </button>
+      </div>
+    </section>
+
+    <section id="tab-budget" class="tab-content hidden space-y-6">
+      
+      <!-- Income Settings Card -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-wallet text-emerald-400"></i>
+              Monthly Income
+            </h3>
+            <p class="text-xs text-slate-400">Enter your monthly net take-home salary or income.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <label class="text-xs font-medium text-slate-300">Take-Home Income (₱):</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-semibold text-sm">₱</span>
+              <input type="number" id="income-input" value="0" placeholder="0.00" onchange="updateIncome(this.value)" class="bg-slate-800 border border-slate-700 text-white text-sm font-bold rounded-xl pl-8 pr-3 py-2 w-40 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expense Items Table -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+        <div class="p-6 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-list-ul text-indigo-400"></i>
+              Monthly Essential Expenses
+            </h3>
+            <p class="text-xs text-slate-400">Add recurring fixed and variable living costs (excluding debt payments)</p>
+          </div>
+          <button onclick="openAddExpenseModal()" class="px-3.5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition-all flex items-center gap-2 self-start sm:self-auto">
+            <i class="fa-solid fa-plus"></i>
+            Add Expense
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950/60 text-slate-400 uppercase font-semibold border-b border-slate-800">
+              <tr>
+                <th class="px-6 py-3">Expense Name</th>
+                <th class="px-6 py-3">Category</th>
+                <th class="px-6 py-3 text-right">Monthly Amount (₱)</th>
+                <th class="px-6 py-3 text-center no-print">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="expense-table-body" class="divide-y divide-slate-800/60 text-slate-200">
+              <!-- Dynamically populated or empty -->
+            </tbody>
+            <tfoot class="bg-slate-950/80 font-bold border-t border-slate-800 text-white">
+              <tr>
+                <td colspan="2" class="px-6 py-4 text-slate-300">Total Non-Loan Expenses</td>
+                <td class="px-6 py-4 text-right text-emerald-400 text-sm" id="table-total-expenses">₱0.00</td>
+                <td class="px-6 py-4 no-print"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-debts" class="tab-content hidden space-y-6">
+
+      <!-- Header & Add Debt -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-hand-holding-dollar text-amber-400"></i>
+            Active Loan Portfolio
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">Manage outstanding loan balances, minimum payments, and interest terms.</p>
+        </div>
+        <button onclick="openAddDebtModal()" class="px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-500 rounded-xl transition-all flex items-center gap-2 self-start sm:self-auto">
+          <i class="fa-solid fa-plus"></i>
+          Add New Debt / Loan
+        </button>
+      </div>
+
+      <!-- Debt Cards Grid -->
+      <div id="debt-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Dynamically rendered or empty -->
+      </div>
+
+      <!-- Debt Strategy Simulator -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-calculator text-indigo-400"></i>
+              Debt Payoff Simulator
+            </h3>
+            <p class="text-xs text-slate-400">Simulate repayment timelines using Snowball vs Avalanche priority strategies.</p>
+          </div>
+          
+          <div class="flex items-center gap-2 bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <button onclick="setStrategy('snowball')" id="strat-snowball" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition-all">
+              Snowball (Lowest Balance)
+            </button>
+            <button onclick="setStrategy('avalanche')" id="strat-avalanche" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all">
+              Avalanche (Highest Rate)
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs font-semibold text-slate-300 block mb-2">Extra Monthly Debt Payment (₱):</label>
+              <div class="flex items-center gap-3">
+                <input type="range" id="extra-payment-range" min="0" max="10000" step="250" value="0" oninput="updateExtraPayment(this.value)" class="w-full accent-indigo-500 bg-slate-800 h-2 rounded-lg">
+                <span class="text-sm font-bold text-indigo-400 min-w-[70px] text-right" id="extra-payment-display">₱0</span>
+              </div>
+            </div>
+
+            <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+              <div class="flex justify-between text-xs text-slate-400">
+                <span>Total Monthly Debt Outflow:</span>
+                <strong id="sim-monthly-payment" class="text-white">₱0.00</strong>
+              </div>
+              <div class="flex justify-between text-xs text-slate-400">
+                <span>Estimated Months to Debt-Free:</span>
+                <strong id="sim-months" class="text-emerald-400">0 Months</strong>
+              </div>
+              <div class="flex justify-between text-xs text-slate-400">
+                <span>Projected Debt Freedom Date:</span>
+                <strong id="sim-freedom-date" class="text-indigo-300">--</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-2 bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
+            <h4 class="text-xs font-bold text-slate-300 mb-2">Projected Balance Trajectory</h4>
+            <div class="relative h-48 w-full">
+              <canvas id="payoffChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <section id="tab-allocation" class="tab-content hidden space-y-6">
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-emerald-400"></i>
+            Surplus Distribution Plan
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">Safely distribute remaining unallocated monthly income into savings and extra principal payments.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Emergency Savings Card -->
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase text-emerald-400 tracking-wider">1. Emergency Savings</span>
+              <i class="fa-solid fa-piggy-bank text-emerald-400 text-lg"></i>
+            </div>
+            <p class="text-xs text-slate-400">Set aside liquid funds for unexpected health or vehicle emergencies.</p>
+            <div>
+              <label class="text-xs font-semibold text-slate-300 block mb-1">Monthly Allocation (₱):</label>
+              <input type="number" id="alloc-savings" value="0" placeholder="0.00" onchange="updateAllocations()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm font-bold rounded-xl px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            </div>
+          </div>
+
+          <!-- Extra Debt Payment Card -->
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase text-amber-400 tracking-wider">2. Extra Debt Principal</span>
+              <i class="fa-solid fa-bolt text-amber-400 text-lg"></i>
+            </div>
+            <p class="text-xs text-slate-400">Pay down highest-interest or highest-priority loans ahead of time.</p>
+            <div>
+              <label class="text-xs font-semibold text-slate-300 block mb-1">Monthly Allocation (₱):</label>
+              <input type="number" id="alloc-debt-extra" value="0" placeholder="0.00" onchange="updateAllocations()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm font-bold rounded-xl px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+            </div>
+          </div>
+
+          <!-- Unallocated Buffer Card -->
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase text-indigo-400 tracking-wider">3. Unallocated Buffer</span>
+              <i class="fa-solid fa-shield text-indigo-400 text-lg"></i>
+            </div>
+            <p class="text-xs text-slate-400">Flexible buffer to absorb variable food or utility costs during the month.</p>
+            <div>
+              <div class="text-2xl font-bold text-indigo-300 mt-2" id="alloc-buffer-display">₱0.00</div>
+              <div class="text-xs text-slate-400 mt-1">Remaining float balance</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+            <span class="text-slate-300">Surplus Balance Check:</span>
+          </div>
+          <div class="font-bold text-sm text-white" id="alloc-status">
+            0.00 safe buffer intact
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="hidden print:block space-y-6">
+      <div class="border-b pb-4 border-slate-300">
+        <h1 class="text-2xl font-bold text-black">Personal Financial Summary Statement</h1>
+        <p class="text-sm text-slate-600">Generated on <span id="print-date"></span></p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 text-xs">
+        <div class="p-3 border rounded">
+          <strong>Monthly Income:</strong> <span id="print-income">₱0.00</span>
+        </div>
+        <div class="p-3 border rounded">
+          <strong>Total Monthly Expenses:</strong> <span id="print-expenses">₱0.00</span>
+        </div>
+        <div class="p-3 border rounded">
+          <strong>Monthly Debt Obligations:</strong> <span id="print-debts">₱0.00</span>
+        </div>
+        <div class="p-3 border rounded">
+          <strong>Net Remaining Cash Flow:</strong> <span id="print-surplus">₱0.00</span>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="font-bold text-sm mb-2 text-black">Active Debt Portfolio</h3>
+        <table class="w-full text-xs text-left border border-slate-300 border-collapse">
+          <thead>
+            <tr class="bg-slate-100 border-b">
+              <th class="p-2 border">Loan Name / Creditor</th>
+              <th class="p-2 border">Outstanding Balance</th>
+              <th class="p-2 border">Monthly Payment</th>
+            </tr>
+          </thead>
+          <tbody id="print-debt-rows">
+            <!-- Cloned dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: ADD EXPENSE -->
+  <div id="modal-expense" class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 modal-backdrop">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle text-indigo-400"></i>
+          Add New Expense Record
+        </h3>
+        <button onclick="closeModal('modal-expense')" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Expense Title</label>
+          <input type="text" id="new-expense-name" placeholder="e.g. Groceries, Electricity, Fuel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Category</label>
+          <select id="new-expense-cat" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+            <option value="Living">Living / Food</option>
+            <option value="Tuition">Education / Tuition</option>
+            <option value="Transport">Transport / Fuel</option>
+            <option value="Utilities">Utilities & Bills</option>
+            <option value="Other">Other Expenses</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Monthly Amount (₱)</label>
+          <input type="number" id="new-expense-amount" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+        <button onclick="closeModal('modal-expense')" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white bg-slate-800 rounded-xl">Cancel</button>
+        <button onclick="addExpenseFromModal()" class="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl">Save Expense</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD DEBT -->
+  <div id="modal-debt" class="fixed inset-0 z-50 flex items-center justify-center hidden p-4 modal-backdrop">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle text-amber-400"></i>
+          Add New Debt / Loan Record
+        </h3>
+        <button onclick="closeModal('modal-debt')" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Loan / Creditor Name</label>
+          <input type="text" id="new-debt-name" placeholder="e.g. Credit Card, Personal Loan" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Current Principal Balance (₱)</label>
+          <input type="number" id="new-debt-balance" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Required Monthly Installment (₱)</label>
+          <input type="number" id="new-debt-monthly" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Notes / Loan Terms</label>
+          <input type="text" id="new-debt-notes" placeholder="e.g. 0% interest family loan" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-800">
+        <button onclick="closeModal('modal-debt')" class="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white bg-slate-800 rounded-xl">Cancel</button>
+        <button onclick="addDebtFromModal()" class="px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-500 rounded-xl">Save Debt Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Element -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-indigo-600 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl transition-all duration-300 transform translate-y-20 opacity-0 flex items-center gap-2">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toast-message">Data updated</span>
+  </div>
+
+  <script>
+    const BLANK_STATE = {
+      income: 0.00,
+      expenses: [],
+      debts: [],
+      allocations: {
+        savings: 0.00,
+        extraDebt: 0.00
+      },
+      strategy: 'snowball',
+      extraPayment: 0
+    };
+
+    let state = loadState();
+    let expenseChartInstance = null;
+    let debtChartInstance = null;
+    let payoffChartInstance = null;
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem('ph_finance_blank_tracker_state');
+        if (saved) {
+          return JSON.parse(saved);
+        }
+      } catch (e) {
+        console.error("Failed to read localStorage", e);
+      }
+      return JSON.parse(JSON.stringify(BLANK_STATE));
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem('ph_finance_blank_tracker_state', JSON.stringify(state));
+      } catch (e) {
+        console.error("Failed to save localStorage", e);
+      }
+      recalculateAndRender();
+    }
+
+    function clearAllData() {
+      state = JSON.parse(JSON.stringify(BLANK_STATE));
+      saveState();
+      showToast("Cleared all data to fresh zero state.");
+    }
+
+    function formatCurrency(num) {
+      return '₱' + Number(num || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function calculateTotals() {
+      const totalNonLoanExpenses = state.expenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+      const totalMonthlyDebtPayments = state.debts.reduce((sum, item) => sum + (Number(item.monthly) || 0), 0);
+      const totalMonthlyExpenses = totalNonLoanExpenses + totalMonthlyDebtPayments;
+      const totalOutstandingDebt = state.debts.reduce((sum, item) => sum + (Number(item.balance) || 0), 0);
+      const remainingCash = state.income - totalMonthlyExpenses;
+      const expenseRate = state.income > 0 ? (totalMonthlyExpenses / state.income) * 100 : 0;
+      const debtRatio = state.income > 0 ? (totalMonthlyDebtPayments / state.income) * 100 : 0;
+
+      return {
+        totalNonLoanExpenses,
+        totalMonthlyDebtPayments,
+        totalMonthlyExpenses,
+        totalOutstandingDebt,
+        remainingCash,
+        expenseRate,
+        debtRatio
+      };
+    }
+
+    function recalculateAndRender() {
+      const totals = calculateTotals();
+
+      // Update Dashboard Metric Cards
+      document.getElementById('metric-income').textContent = formatCurrency(state.income);
+      document.getElementById('metric-expenses').textContent = formatCurrency(totals.totalMonthlyExpenses);
+      document.getElementById('metric-expense-rate').textContent = `${totals.expenseRate.toFixed(1)}% of income`;
+      
+      document.getElementById('metric-debt-monthly').textContent = formatCurrency(totals.totalMonthlyDebtPayments);
+      document.getElementById('metric-debt-ratio').textContent = `${totals.debtRatio.toFixed(1)}% Debt-to-Income`;
+      
+      document.getElementById('metric-remaining').textContent = formatCurrency(totals.remainingCash);
+      document.getElementById('metric-total-debt').textContent = formatCurrency(totals.totalOutstandingDebt);
+
+      // Gauge Bar Calculations
+      const livingAmt = state.expenses.filter(e => e.category === 'Living').reduce((a,b) => a + Number(b.amount), 0);
+      const livingPct = state.income > 0 ? Math.min(100, (totals.totalNonLoanExpenses / state.income) * 100) : 0;
+      const debtPct = state.income > 0 ? Math.min(100, (totals.totalMonthlyDebtPayments / state.income) * 100) : 0;
+      const remainingPct = state.income > 0 ? Math.max(0, 100 - (livingPct + debtPct)) : 100;
+
+      document.getElementById('gauge-living').style.width = `${livingPct}%`;
+      document.getElementById('gauge-debt').style.width = `${debtPct}%`;
+      document.getElementById('gauge-remaining').style.width = `${remainingPct}%`;
+
+      document.getElementById('gauge-label').textContent = `${totals.expenseRate.toFixed(1)}% Allocated`;
+
+      document.getElementById('legend-living-val').textContent = formatCurrency(totals.totalNonLoanExpenses);
+      document.getElementById('legend-debt-val').textContent = formatCurrency(totals.totalMonthlyDebtPayments);
+      document.getElementById('legend-remaining-val').textContent = formatCurrency(totals.remainingCash);
+
+      // Sync Income Input
+      document.getElementById('income-input').value = state.income || '';
+
+      // Render Tables and Cards
+      renderExpenseTable(totals);
+      renderDebtCards();
+      renderAllocations(totals);
+      updateCharts(totals);
+      renderPrintView(totals);
+    }
+
+    function updateCharts(totals) {
+      // 1. Expense Chart
+      const ctxExpense = document.getElementById('expenseChart').getContext('2d');
+      const emptyExpNotice = document.getElementById('expense-chart-empty');
+
+      if (state.expenses.length === 0 && totals.totalMonthlyDebtPayments === 0) {
+        emptyExpNotice.classList.remove('hidden');
+        if (expenseChartInstance) expenseChartInstance.destroy();
+      } else {
+        emptyExpNotice.classList.add('hidden');
+        const expenseCategories = {};
+        
+        state.expenses.forEach(e => {
+          expenseCategories[e.category] = (expenseCategories[e.category] || 0) + Number(e.amount);
+        });
+        if (totals.totalMonthlyDebtPayments > 0) {
+          expenseCategories['Loan Service'] = totals.totalMonthlyDebtPayments;
+        }
+
+        const expLabels = Object.keys(expenseCategories);
+        const expData = Object.values(expenseCategories);
+
+        if (expenseChartInstance) expenseChartInstance.destroy();
+
+        expenseChartInstance = new Chart(ctxExpense, {
+          type: 'doughnut',
+          data: {
+            labels: expLabels,
+            datasets: [{
+              data: expData,
+              backgroundColor: ['#10b981', '#3b82f6', '#06b6d4', '#8b5cf6', '#f59e0b', '#ec4899'],
+              borderWidth: 2,
+              borderColor: '#0f172a'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: { color: '#94a3b8', font: { family: 'Inter', size: 11 } }
+              }
+            },
+            cutout: '70%'
+          }
+        });
+      }
+
+      // 2. Debt Balances Bar Chart
+      const ctxDebt = document.getElementById('debtChart').getContext('2d');
+      const emptyDebtNotice = document.getElementById('debt-chart-empty');
+
+      if (state.debts.length === 0) {
+        emptyDebtNotice.classList.remove('hidden');
+        if (debtChartInstance) debtChartInstance.destroy();
+      } else {
+        emptyDebtNotice.classList.add('hidden');
+        const debtLabels = state.debts.map(d => d.name);
+        const debtBalances = state.debts.map(d => d.balance);
+        const debtColors = state.debts.map(d => d.color || '#6366f1');
+
+        if (debtChartInstance) debtChartInstance.destroy();
+
+        debtChartInstance = new Chart(ctxDebt, {
+          type: 'bar',
+          data: {
+            labels: debtLabels,
+            datasets: [{
+              label: 'Outstanding Principal (₱)',
+              data: debtBalances,
+              backgroundColor: debtColors,
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { ticks: { color: '#94a3b8', font: { family: 'Inter', size: 10 } }, grid: { display: false } },
+              y: { ticks: { color: '#94a3b8', font: { family: 'Inter', size: 10 } }, grid: { color: '#1e293b' } }
+            }
+          }
+        });
+      }
+
+      // 3. Payoff Projection Simulation
+      updatePayoffSimulation();
+    }
+
+    function renderExpenseTable(totals) {
+      const tbody = document.getElementById('expense-table-body');
+      tbody.innerHTML = '';
+
+      if (state.expenses.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td colspan="4" class="px-6 py-8 text-center text-slate-500 italic">
+            No expense items yet. Click "+ Add Expense" above to add your recurring bills.
+          </td>
+        `;
+        tbody.appendChild(tr);
+      } else {
+        state.expenses.forEach(exp => {
+          const tr = document.createElement('tr');
+          tr.className = 'hover:bg-slate-800/40 transition-colors';
+          tr.innerHTML = `
+            <td class="px-6 py-3.5 font-semibold text-white">${escapeHtml(exp.name)}</td>
+            <td class="px-6 py-3.5">
+              <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-300 border border-slate-700">${escapeHtml(exp.category)}</span>
+            </td>
+            <td class="px-6 py-3.5 text-right font-bold text-slate-100">
+              <div class="flex items-center justify-end gap-1">
+                <span>₱</span>
+                <input type="number" value="${exp.amount}" onchange="updateExpenseAmount('${exp.id}', this.value)" class="bg-slate-950 border border-slate-800 text-right w-28 px-2 py-1 rounded-lg text-xs focus:ring-1 focus:ring-indigo-500 font-bold text-emerald-400">
+              </div>
+            </td>
+            <td class="px-6 py-3.5 text-center no-print">
+              <button onclick="deleteExpense('${exp.id}')" class="text-slate-500 hover:text-rose-400 p-1 transition-colors" title="Delete record">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      document.getElementById('table-total-expenses').textContent = formatCurrency(totals.totalNonLoanExpenses);
+    }
+
+    function renderDebtCards() {
+      const container = document.getElementById('debt-cards-container');
+      container.innerHTML = '';
+
+      if (state.debts.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full border-2 border-dashed border-slate-800 rounded-2xl p-8 text-center text-slate-500 space-y-2">
+            <i class="fa-solid fa-hand-holding-dollar text-3xl text-slate-600"></i>
+            <p class="text-xs font-medium">No debts or loans recorded yet.</p>
+            <button onclick="openAddDebtModal()" class="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-500 text-white font-semibold rounded-xl transition-all inline-block mt-2">
+              + Add First Debt
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      state.debts.forEach((debt) => {
+        const monthsRemaining = debt.monthly > 0 ? Math.ceil(debt.balance / debt.monthly) : 'N/A';
+        const card = document.createElement('div');
+        card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4 hover:border-slate-700 transition-all shadow-sm";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <h4 class="text-sm font-bold text-white leading-snug">${escapeHtml(debt.name)}</h4>
+              <button onclick="deleteDebt('${debt.id}')" class="text-slate-500 hover:text-rose-400 text-xs no-print">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">${escapeHtml(debt.notes || 'Standard loan record')}</p>
+          </div>
+
+          <div class="space-y-2 pt-2 border-t border-slate-800/80">
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-400">Balance:</span>
+              <div class="flex items-center gap-1">
+                <span class="text-slate-500">₱</span>
+                <input type="number" value="${debt.balance}" onchange="updateDebtBalance('${debt.id}', this.value)" class="bg-slate-950 border border-slate-800 text-right w-24 px-2 py-0.5 rounded text-xs font-bold text-white focus:outline-none focus:border-amber-500">
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-400">Monthly Payment:</span>
+              <div class="flex items-center gap-1">
+                <span class="text-slate-500">₱</span>
+                <input type="number" value="${debt.monthly}" onchange="updateDebtMonthly('${debt.id}', this.value)" class="bg-slate-950 border border-slate-800 text-right w-24 px-2 py-0.5 rounded text-xs font-bold text-amber-400 focus:outline-none focus:border-amber-500">
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center text-xs pt-1">
+              <span class="text-slate-400">Estimated Duration:</span>
+              <span class="font-bold text-indigo-300">${monthsRemaining} ${monthsRemaining === 'N/A' ? '' : 'months'}</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function setStrategy(strat) {
+      state.strategy = strat;
+      document.getElementById('strat-snowball').className = strat === 'snowball' ? 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition-all' : 'px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all';
+      document.getElementById('strat-avalanche').className = strat === 'avalanche' ? 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition-all' : 'px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition-all';
+      saveState();
+    }
+
+    function updateExtraPayment(val) {
+      state.extraPayment = Number(val) || 0;
+      document.getElementById('extra-payment-display').textContent = formatCurrency(state.extraPayment);
+      updatePayoffSimulation();
+    }
+
+    function updatePayoffSimulation() {
+      const extra = Number(state.extraPayment) || 0;
+      const totalBaseMonthly = state.debts.reduce((sum, d) => sum + (Number(d.monthly) || 0), 0);
+      const totalMonthlyAllocated = totalBaseMonthly + extra;
+
+      document.getElementById('sim-monthly-payment').textContent = formatCurrency(totalMonthlyAllocated);
+
+      if (state.debts.length === 0) {
+        document.getElementById('sim-months').textContent = "0 Months";
+        document.getElementById('sim-freedom-date').textContent = "No active loans";
+        const ctxPayoff = document.getElementById('payoffChart').getContext('2d');
+        if (payoffChartInstance) payoffChartInstance.destroy();
+        return;
+      }
+
+      let simDebts = state.debts.map(d => ({ balance: Number(d.balance), min: Number(d.monthly) }));
+      let months = 0;
+      let monthHistory = [state.debts.reduce((s,d) => s + d.balance, 0)];
+
+      while (simDebts.some(d => d.balance > 0) && months < 360) {
+        months++;
+        let availableExtra = extra;
+
+        if (state.strategy === 'snowball') {
+          simDebts.sort((a,b) => a.balance - b.balance);
+        } else {
+          simDebts.sort((a,b) => b.balance - a.balance);
+        }
+
+        simDebts.forEach(d => {
+          if (d.balance > 0) {
+            let pay = Math.min(d.balance, d.min);
+            d.balance -= pay;
+          }
+        });
+
+        for (let d of simDebts) {
+          if (d.balance > 0 && availableExtra > 0) {
+            let extraPay = Math.min(d.balance, availableExtra);
+            d.balance -= extraPay;
+            availableExtra -= extraPay;
+          }
+        }
+
+        let totalRemaining = simDebts.reduce((s,d) => s + Math.max(0, d.balance), 0);
+        if (months % 3 === 0 || totalRemaining === 0) {
+          monthHistory.push(totalRemaining);
+        }
+      }
+
+      document.getElementById('sim-months').textContent = `${months} Months`;
+      
+      const targetDate = new Date();
+      targetDate.setMonth(targetDate.getMonth() + months);
+      document.getElementById('sim-freedom-date').textContent = targetDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+      const ctxPayoff = document.getElementById('payoffChart').getContext('2d');
+      if (payoffChartInstance) payoffChartInstance.destroy();
+
+      payoffChartInstance = new Chart(ctxPayoff, {
+        type: 'line',
+        data: {
+          labels: monthHistory.map((_, i) => `Qtr ${i}`),
+          datasets: [{
+            label: 'Total Debt Balance (₱)',
+            data: monthHistory,
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { display: false } },
+            y: { ticks: { color: '#94a3b8', font: { size: 9 } }, grid: { color: '#1e293b' } }
+          }
+        }
+      });
+    }
+
+    function renderAllocations(totals) {
+      document.getElementById('alloc-savings').value = state.allocations.savings || '';
+      document.getElementById('alloc-debt-extra').value = state.allocations.extraDebt || '';
+
+      const totalAllocated = Number(state.allocations.savings) + Number(state.allocations.extraDebt);
+      const remainingBuffer = totals.remainingCash - totalAllocated;
+
+      document.getElementById('alloc-buffer-display').textContent = formatCurrency(remainingBuffer);
+      
+      if (remainingBuffer < 0) {
+        document.getElementById('alloc-status').textContent = "⚠️ Over-allocated! Exceeds available monthly surplus.";
+        document.getElementById('alloc-status').className = "font-bold text-sm text-rose-400";
+      } else {
+        document.getElementById('alloc-status').textContent = `₱${remainingBuffer.toFixed(2)} safe buffer intact`;
+        document.getElementById('alloc-status').className = "font-bold text-sm text-emerald-400";
+      }
+    }
+
+    function updateAllocations() {
+      state.allocations.savings = Number(document.getElementById('alloc-savings').value) || 0;
+      state.allocations.extraDebt = Number(document.getElementById('alloc-debt-extra').value) || 0;
+      saveState();
+      showToast("Updated surplus allocations.");
+    }
+
+    function updateIncome(val) {
+      state.income = Number(val) || 0;
+      saveState();
+      showToast("Updated monthly income.");
+    }
+
+    function updateExpenseAmount(id, val) {
+      const item = state.expenses.find(e => e.id === id);
+      if (item) {
+        item.amount = Number(val) || 0;
+        saveState();
+      }
+    }
+
+    function deleteExpense(id) {
+      state.expenses = state.expenses.filter(e => e.id !== id);
+      saveState();
+      showToast("Expense item removed.");
+    }
+
+    function updateDebtBalance(id, val) {
+      const debt = state.debts.find(d => d.id === id);
+      if (debt) {
+        debt.balance = Number(val) || 0;
+        saveState();
+      }
+    }
+
+    function updateDebtMonthly(id, val) {
+      const debt = state.debts.find(d => d.id === id);
+      if (debt) {
+        debt.monthly = Number(val) || 0;
+        saveState();
+      }
+    }
+
+    function deleteDebt(id) {
+      state.debts = state.debts.filter(d => d.id !== id);
+      saveState();
+      showToast("Loan removed from tracker.");
+    }
+
+    function openAddExpenseModal() {
+      document.getElementById('modal-expense').classList.remove('hidden');
+    }
+
+    function openAddDebtModal() {
+      document.getElementById('modal-debt').classList.remove('hidden');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.add('hidden');
+    }
+
+    function addExpenseFromModal() {
+      const name = document.getElementById('new-expense-name').value.trim();
+      const cat = document.getElementById('new-expense-cat').value;
+      const amt = Number(document.getElementById('new-expense-amount').value);
+
+      if (!name || isNaN(amt)) {
+        showToast("Please enter a valid expense name and amount.", true);
+        return;
+      }
+
+      state.expenses.push({
+        id: 'exp-' + Date.now(),
+        name: name,
+        category: cat,
+        amount: amt
+      });
+
+      document.getElementById('new-expense-name').value = '';
+      document.getElementById('new-expense-amount').value = '';
+      closeModal('modal-expense');
+      saveState();
+      showToast("New expense item added.");
+    }
+
+    function addDebtFromModal() {
+      const name = document.getElementById('new-debt-name').value.trim();
+      const bal = Number(document.getElementById('new-debt-balance').value);
+      const monthly = Number(document.getElementById('new-debt-monthly').value);
+      const notes = document.getElementById('new-debt-notes').value.trim();
+
+      if (!name || isNaN(bal)) {
+        showToast("Please enter loan name and balance.", true);
+        return;
+      }
+
+      const colors = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#8b5cf6', '#3b82f6'];
+      const randomColor = colors[state.debts.length % colors.length];
+
+      state.debts.push({
+        id: 'debt-' + Date.now(),
+        name: name,
+        balance: bal,
+        monthly: monthly || 0,
+        notes: notes || '',
+        color: randomColor
+      });
+
+      document.getElementById('new-debt-name').value = '';
+      document.getElementById('new-debt-balance').value = '';
+      document.getElementById('new-debt-monthly').value = '';
+      document.getElementById('new-debt-notes').value = '';
+      closeModal('modal-debt');
+      saveState();
+      showToast("New loan added to tracker.");
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('active', 'border-indigo-500', 'text-indigo-400');
+        el.classList.add('border-transparent', 'text-slate-400');
+      });
+
+      document.getElementById(tabId).classList.remove('hidden');
+      const activeNav = document.getElementById('nav-' + tabId);
+      if (activeNav) {
+        activeNav.classList.add('active', 'border-indigo-500', 'text-indigo-400');
+        activeNav.classList.remove('border-transparent', 'text-slate-400');
+      }
+    }
+
+    function exportToCSV() {
+      const totals = calculateTotals();
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "Type,Name,Category/Notes,Amount (PHP)\n";
+
+      csvContent += `Income,Monthly Income,Earnings,${state.income}\n`;
+      
+      state.expenses.forEach(e => {
+        csvContent += `Expense,"${e.name.replace(/"/g, '""')}",${e.category},${e.amount}\n`;
+      });
+
+      state.debts.forEach(d => {
+        csvContent += `Debt Principal,"${d.name.replace(/"/g, '""')}",${d.notes || ''},${d.balance}\n`;
+        csvContent += `Debt Monthly Payment,"${d.name.replace(/"/g, '""')}",Monthly Installment,${d.monthly}\n`;
+      });
+
+      csvContent += `Summary,Total Monthly Outflow,Obligations,${totals.totalMonthlyExpenses}\n`;
+      csvContent += `Summary,Net Surplus,Remaining,${totals.remainingCash}\n`;
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "finance_tracker_blank_slate.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast("CSV file exported successfully.");
+    }
+
+    function renderPrintView(totals) {
+      document.getElementById('print-date').textContent = new Date().toLocaleDateString('en-US', { dateStyle: 'full' });
+      document.getElementById('print-income').textContent = formatCurrency(state.income);
+      document.getElementById('print-expenses').textContent = formatCurrency(totals.totalMonthlyExpenses);
+      document.getElementById('print-debts').textContent = formatCurrency(totals.totalMonthlyDebtPayments);
+      document.getElementById('print-surplus').textContent = formatCurrency(totals.remainingCash);
+
+      const printBody = document.getElementById('print-debt-rows');
+      printBody.innerHTML = '';
+      if (state.debts.length === 0) {
+        printBody.innerHTML = `<tr><td colspan="3" class="p-2 text-center text-slate-500">No loan records available</td></tr>`;
+      } else {
+        state.debts.forEach(d => {
+          const tr = document.createElement('tr');
+          tr.className = 'border-b';
+          tr.innerHTML = `
+            <td class="p-2 border font-semibold">${escapeHtml(d.name)}</td>
+            <td class="p-2 border">${formatCurrency(d.balance)}</td>
+            <td class="p-2 border">${formatCurrency(d.monthly)}</td>
+          `;
+          printBody.appendChild(tr);
+        });
+      }
+    }
+
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      toastMsg.textContent = msg;
+      
+      toast.className = isError 
+        ? "fixed bottom-5 right-5 z-50 bg-rose-600 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl transition-all duration-300 transform translate-y-0 opacity-100 flex items-center gap-2"
+        : "fixed bottom-5 right-5 z-50 bg-indigo-600 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl transition-all duration-300 transform translate-y-0 opacity-100 flex items-center gap-2";
+
+      setTimeout(() => {
+        toast.className = "fixed bottom-5 right-5 z-50 bg-indigo-600 text-white text-xs font-semibold px-4 py-3 rounded-xl shadow-xl transition-all duration-300 transform translate-y-20 opacity-0 flex items-center gap-2";
+      }, 3000);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    window.onload = function() {
+      recalculateAndRender();
+    };
+  </script>
+</body>
+</html>
