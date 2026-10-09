@@ -305,7 +305,7 @@
               <i class="fa-solid fa-gauge-high text-indigo-400"></i>
               Monthly Income Utilization
             </h2>
-            <p class="text-xs text-slate-400">How your total income is distributed across required obligations.</p>
+            <p class="text-xs text-slate-400">How your total income is distributed across expenses, loan payments and savings.</p>
           </div>
           <div class="text-sm font-bold text-slate-300" id="gauge-label">
             0% Allocated
@@ -316,10 +316,11 @@
         <div class="w-full bg-slate-800 h-5 rounded-full overflow-hidden flex p-0.5 border border-slate-700/50">
           <div id="gauge-living" class="bg-emerald-500 h-full transition-all duration-500" style="width: 0%" title="Living Expenses"></div>
           <div id="gauge-debt" class="bg-amber-500 h-full transition-all duration-500" style="width: 0%" title="Debt Payments"></div>
+          <div id="gauge-savings" class="bg-lime-400 h-full transition-all duration-500" style="width: 0%" title="Savings"></div>
           <div id="gauge-remaining" class="bg-indigo-500 h-full rounded-r-full transition-all duration-500" style="width: 100%" title="Remaining Surplus"></div>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4 text-xs">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 text-xs">
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
             <span class="text-slate-300">Living Costs: <strong id="legend-living-val" class="text-white">₱0.00</strong></span>
@@ -327,6 +328,10 @@
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span>
             <span class="text-slate-300">Debt Installments: <strong id="legend-debt-val" class="text-white">₱0.00</strong></span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-lime-400 inline-block"></span>
+            <span class="text-slate-300">Savings: <strong id="legend-savings-val" class="text-white">₱0.00</strong></span>
           </div>
           <div class="flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-indigo-500 inline-block"></span>
@@ -342,15 +347,15 @@
           <div>
             <h3 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
               <i class="fa-solid fa-chart-donut text-emerald-400"></i>
-              Monthly Expenses Breakdown
+              Monthly Budget Breakdown
             </h3>
-            <p class="text-xs text-slate-400 mb-4">Distribution of outgoing funds by category</p>
+            <p class="text-xs text-slate-400 mb-4">Where your income goes: expenses, loan payments and savings</p>
           </div>
           <div class="relative h-64 flex items-center justify-center">
             <canvas id="expenseChart"></canvas>
             <div id="expense-chart-empty" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500 text-xs gap-2">
               <i class="fa-solid fa-folder-open text-2xl"></i>
-              <span>No expense records added yet</span>
+              <span>No expenses, loans or savings added yet</span>
             </div>
           </div>
         </div>
@@ -1071,17 +1076,23 @@
       const livingAmt = state.expenses.filter(e => e.category === 'Living').reduce((a,b) => a + Number(b.amount), 0);
       const livingPct = state.income > 0 ? Math.min(100, (totals.totalNonLoanExpenses / state.income) * 100) : 0;
       const debtPct = state.income > 0 ? Math.min(100, (totals.totalMonthlyDebtPayments / state.income) * 100) : 0;
-      const remainingPct = state.income > 0 ? Math.max(0, 100 - (livingPct + debtPct)) : 100;
+      const savingsAmt = Number(state.allocations && state.allocations.savings) || 0;
+      const savingsPct = state.income > 0 ? Math.min(100, (savingsAmt / state.income) * 100) : 0;
+      const remainingAfterSavings = totals.remainingCash - savingsAmt;
+      const remainingPct = state.income > 0 ? Math.max(0, 100 - (livingPct + debtPct + savingsPct)) : 100;
+      const allocatedPct = state.income > 0 ? ((totals.totalMonthlyExpenses + savingsAmt) / state.income) * 100 : 0;
 
       document.getElementById('gauge-living').style.width = `${livingPct}%`;
       document.getElementById('gauge-debt').style.width = `${debtPct}%`;
+      document.getElementById('gauge-savings').style.width = `${savingsPct}%`;
       document.getElementById('gauge-remaining').style.width = `${remainingPct}%`;
 
-      document.getElementById('gauge-label').textContent = `${totals.expenseRate.toFixed(1)}% Allocated`;
+      document.getElementById('gauge-label').textContent = `${allocatedPct.toFixed(1)}% Allocated`;
 
       document.getElementById('legend-living-val').textContent = formatCurrency(totals.totalNonLoanExpenses);
       document.getElementById('legend-debt-val').textContent = formatCurrency(totals.totalMonthlyDebtPayments);
-      document.getElementById('legend-remaining-val').textContent = formatCurrency(totals.remainingCash);
+      document.getElementById('legend-savings-val').textContent = formatCurrency(savingsAmt);
+      document.getElementById('legend-remaining-val').textContent = formatCurrency(remainingAfterSavings);
 
       // Sync Income Input
       document.getElementById('income-input').value = state.income ? moneyStr(state.income) : '';
@@ -1099,7 +1110,8 @@
       const ctxExpense = document.getElementById('expenseChart').getContext('2d');
       const emptyExpNotice = document.getElementById('expense-chart-empty');
 
-      if (state.expenses.length === 0 && totals.totalMonthlyDebtPayments === 0) {
+      const chartSavings = Number(state.allocations && state.allocations.savings) || 0;
+      if (state.expenses.length === 0 && totals.totalMonthlyDebtPayments === 0 && chartSavings === 0) {
         emptyExpNotice.classList.remove('hidden');
         if (expenseChartInstance) expenseChartInstance.destroy();
       } else {
@@ -1111,6 +1123,9 @@
         });
         if (totals.totalMonthlyDebtPayments > 0) {
           expenseCategories['Loan Service'] = totals.totalMonthlyDebtPayments;
+        }
+        if (chartSavings > 0) {
+          expenseCategories['Savings'] = chartSavings;
         }
 
         const expLabels = Object.keys(expenseCategories);
@@ -1124,7 +1139,7 @@
             labels: expLabels,
             datasets: [{
               data: expData,
-              backgroundColor: ['#10b981', '#3b82f6', '#06b6d4', '#8b5cf6', '#f59e0b', '#ec4899'],
+              backgroundColor: expLabels.map((l, i) => l === 'Savings' ? '#a3e635' : ['#10b981', '#3b82f6', '#06b6d4', '#8b5cf6', '#f59e0b', '#ec4899'][i % 6]),
               borderWidth: 2,
               borderColor: '#0f172a'
             }]
@@ -1136,6 +1151,14 @@
               legend: {
                 position: 'right',
                 labels: { color: '#94a3b8', font: { family: 'Inter', size: 11 } }
+              },
+              tooltip: {
+                callbacks: {
+                  label: (c) => {
+                    const total = c.dataset.data.reduce((a, b) => a + b, 0);
+                    return ` ${c.label}: ${formatCurrency(c.parsed)} (${total > 0 ? (c.parsed / total * 100).toFixed(1) : 0}%)`;
+                  }
+                }
               }
             },
             cutout: '70%'
