@@ -6,7 +6,9 @@ database needed).
 
 ## Structure
 
-- `index.html` – the app (login screen, admin panel, tracker)
+- `index.html` – public front page (landing page with live budget + debt demos)
+- `app.html` – the app (login screen, admin panel, tracker). Landing buttons link to `/app.html` and `/app.html#register`
+- `assets/` – logo files (mark + wordmark in dark and light versions, favicons)
 - `netlify/functions/api.mjs` – API (auth, admin CRUD, codes, per-user data)
 - `package.json` – dependency: `@netlify/blobs`
 - `netlify.toml` – publish dir + functions dir
