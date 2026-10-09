@@ -526,7 +526,7 @@
           </div>
 
           <div class="lg:col-span-2 bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between">
-            <h4 class="text-xs font-bold text-slate-300 mb-2">Projected Balance Trajectory</h4>
+            <h4 class="text-xs font-bold text-slate-300 mb-1">Rough Payoff Estimate <span class="font-normal text-slate-500">— total left to pay (monthly payment × term)</span></h4>
             <div class="relative h-48 w-full">
               <canvas id="payoffChart"></canvas>
             </div>
@@ -705,13 +705,13 @@
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-300 mb-1">Current Principal Balance (₱)</label>
-          <input type="text" inputmode="decimal" autocomplete="off" data-money id="new-debt-balance" placeholder="0.00" oninput="previewModalPayment()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500">
+          <label class="block font-semibold text-slate-300 mb-1">Amount Borrowed (₱)</label>
+          <input type="text" inputmode="decimal" autocomplete="off" data-money id="new-debt-balance" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500">
         </div>
 
         <div>
-          <label class="block font-semibold text-slate-300 mb-1">Term (months) <span class="font-normal text-slate-500">— optional, sets the monthly payment automatically</span></label>
-          <input type="number" id="new-debt-term" min="1" max="600" step="1" placeholder="e.g. 12" oninput="previewModalPayment()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500">
+          <label class="block font-semibold text-slate-300 mb-1">Term (months)</label>
+          <input type="number" id="new-debt-term" min="1" max="600" step="1" placeholder="e.g. 12" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500">
         </div>
 
         <div>
@@ -1243,7 +1243,31 @@
       }
 
       state.debts.forEach((debt) => {
-        const monthsRemaining = debt.monthly > 0 ? Math.ceil(debt.balance / debt.monthly) : 'N/A';
+        const hasPlan = Number(debt.monthly) > 0 && Number(debt.term) > 0;
+        const totalPayable = hasPlan ? debt.monthly * debt.term : 0;
+        const interestFees = totalPayable - (Number(debt.balance) || 0);
+        const interestPct = debt.balance > 0 ? (interestFees / debt.balance) * 100 : 0;
+        let planHtml;
+        if (!hasPlan) {
+          planHtml = `<p class="text-[11px] text-amber-400/90 pt-1"><i class="fa-solid fa-circle-info mr-1"></i>Enter the term and monthly payment to track this loan.</p>`;
+        } else if (interestFees < 0) {
+          planHtml = `
+            <div class="flex justify-between items-center text-xs pt-1">
+              <span class="text-slate-400">Total Payable:</span>
+              <span class="font-bold text-slate-100">${formatCurrency(totalPayable)}</span>
+            </div>
+            <p class="text-[11px] text-rose-400 pt-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i>${debt.term} × ${formatCurrency(debt.monthly)} is ${formatCurrency(-interestFees)} less than the amount borrowed. Check the monthly payment or term.</p>`;
+        } else {
+          planHtml = `
+            <div class="flex justify-between items-center text-xs pt-1">
+              <span class="text-slate-400">Total Payable <span class="text-slate-500">(${debt.term} × ${formatCurrency(debt.monthly)})</span>:</span>
+              <span class="font-bold text-slate-100">${formatCurrency(totalPayable)}</span>
+            </div>
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-400">Interest / Fees:</span>
+              <span class="font-bold text-amber-300">${formatCurrency(interestFees)} <span class="text-[10px] font-semibold text-slate-500">(${interestPct.toFixed(1)}%)</span></span>
+            </div>`;
+        }
         const card = document.createElement('div');
         card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4 hover:border-slate-700 transition-all shadow-sm";
         card.innerHTML = `
@@ -1259,7 +1283,7 @@
 
           <div class="space-y-2 pt-2 border-t border-slate-800/80">
             <div class="flex justify-between items-center text-xs">
-              <span class="text-slate-400">Balance:</span>
+              <span class="text-slate-400">Amount Borrowed:</span>
               <div class="flex items-center gap-1">
                 <span class="text-slate-500">₱</span>
                 <input type="text" inputmode="decimal" autocomplete="off" data-money value="${moneyStr(debt.balance)}" onchange="updateDebtBalance('${debt.id}', parseMoney(this.value))" class="bg-slate-950 border border-slate-800 text-right w-24 px-2 py-0.5 rounded text-xs font-bold text-white focus:outline-none focus:border-amber-500">
@@ -1274,17 +1298,14 @@
             </div>
 
             <div class="flex justify-between items-center text-xs">
-              <span class="text-slate-400">Monthly Payment:${debt.term > 0 ? ' <span class="text-[10px] text-emerald-500">(auto)</span>' : ''}</span>
+              <span class="text-slate-400">Monthly Payment</span>
               <div class="flex items-center gap-1">
                 <span class="text-slate-500">₱</span>
                 <input type="text" inputmode="decimal" autocomplete="off" data-money value="${moneyStr(debt.monthly)}" onchange="updateDebtMonthly('${debt.id}', parseMoney(this.value))" class="bg-slate-950 border border-slate-800 text-right w-24 px-2 py-0.5 rounded text-xs font-bold text-amber-400 focus:outline-none focus:border-amber-500">
               </div>
             </div>
 
-            <div class="flex justify-between items-center text-xs pt-1">
-              <span class="text-slate-400">Estimated Duration:</span>
-              <span class="font-bold text-indigo-300">${monthsRemaining} ${monthsRemaining === 'N/A' ? '' : 'months'}</span>
-            </div>
+            ${planHtml}
           </div>
         `;
         container.appendChild(card);
@@ -1319,11 +1340,23 @@
         return;
       }
 
-      let simDebts = state.debts.map(d => ({ balance: Number(d.balance), min: Number(d.monthly) }));
+      // Rough estimate: what is left to pay = monthly payment × term (includes interest/fees).
+      // Loans with no monthly payment yet can't be projected, so they are left out until it is set.
+      const trackable = state.debts.filter(d => Number(d.monthly) > 0);
+      if (trackable.length === 0) {
+        document.getElementById('sim-months').textContent = "—";
+        document.getElementById('sim-freedom-date').textContent = "Set monthly payments";
+        if (payoffChartInstance) payoffChartInstance.destroy();
+        return;
+      }
+      let simDebts = trackable.map(d => {
+        const monthly = Number(d.monthly) || 0, term = Number(d.term) || 0;
+        return { balance: term > 0 ? monthly * term : (Number(d.balance) || 0), min: monthly };
+      });
       let months = 0;
-      let monthHistory = [state.debts.reduce((s,d) => s + (Number(d.balance) || 0), 0)];
+      let monthHistory = [simDebts.reduce((s,d) => s + d.balance, 0)];
 
-      while (simDebts.some(d => d.balance > 0) && months < 360) {
+      while (simDebts.some(d => d.balance > 0.005) && months < 600) {
         months++;
         let availableExtra = extra;
 
@@ -1348,6 +1381,7 @@
           }
         }
 
+        simDebts.forEach(d => { if (d.balance < 0.005) d.balance = 0; });
         let totalRemaining = simDebts.reduce((s,d) => s + Math.max(0, d.balance), 0);
         monthHistory.push(totalRemaining);
       }
@@ -1372,7 +1406,7 @@
         data: {
           labels: chartLabels,
           datasets: [{
-            label: 'Total Debt Balance (₱)',
+            label: 'Total Remaining to Pay (₱)',
             data: chartData,
             borderColor: '#6366f1',
             backgroundColor: 'rgba(99, 102, 241, 0.1)',
@@ -1437,45 +1471,30 @@
       showToast("Expense item removed.");
     }
 
-    // Monthly payment needed to clear `balance` in `term` months (rounded up to the centavo)
-    function paymentForTerm(balance, term) {
-      const b = Number(balance) || 0, t = Math.floor(Number(term) || 0);
-      if (b <= 0 || t <= 0) return 0;
-      return Math.ceil(b / t * 100 - 1e-9) / 100;
-    }
-
+    // Balance = the amount borrowed (principal). Term and monthly payment are entered by the user.
     function updateDebtBalance(id, val) {
       const debt = state.debts.find(d => d.id === id);
       if (debt) {
         debt.balance = Number(val) || 0;
-        if (debt.term > 0) debt.monthly = paymentForTerm(debt.balance, debt.term);
         saveState();
       }
     }
 
-    // Monthly edited by hand -> term follows the payment
     function updateDebtMonthly(id, val) {
       const debt = state.debts.find(d => d.id === id);
       if (debt) {
         debt.monthly = Number(val) || 0;
-        if (debt.term > 0) debt.term = debt.monthly > 0 ? Math.ceil(debt.balance / debt.monthly) : 0;
         saveState();
       }
     }
 
-    // Term set -> monthly payment auto-adjusts (blank/0 clears the term and keeps the current payment)
     function updateDebtTerm(id, val) {
       const debt = state.debts.find(d => d.id === id);
-      if (!debt) return;
-      const t = Math.floor(Number(val) || 0);
-      if (t > 0) {
-        debt.term = Math.min(t, 600);
-        debt.monthly = paymentForTerm(debt.balance, debt.term);
-        showToast('Payment set to ' + formatCurrency(debt.monthly) + '/month for ' + debt.term + ' months.');
-      } else {
-        debt.term = 0;
+      if (debt) {
+        const t = Math.floor(Number(val) || 0);
+        debt.term = t > 0 ? Math.min(t, 600) : 0;
+        saveState();
       }
-      saveState();
     }
 
     function deleteDebt(id) {
@@ -1520,22 +1539,12 @@
       showToast("New expense item added.");
     }
 
-    // Live preview in the Add Debt form: term + balance -> monthly
-    function previewModalPayment() {
-      const term = Number(document.getElementById('new-debt-term').value);
-      const bal = parseMoney(document.getElementById('new-debt-balance').value);
-      const monthlyEl = document.getElementById('new-debt-monthly');
-      if (term > 0) { monthlyEl.value = paymentForTerm(bal, term) ? moneyStr(paymentForTerm(bal, term)) : ''; monthlyEl.readOnly = true; monthlyEl.classList.add('opacity-60'); }
-      else { monthlyEl.readOnly = false; monthlyEl.classList.remove('opacity-60'); }
-    }
-
     function addDebtFromModal() {
       const name = document.getElementById('new-debt-name').value.trim();
       const bal = parseMoney(document.getElementById('new-debt-balance').value);
       let monthly = parseMoney(document.getElementById('new-debt-monthly').value);
       const term = Math.floor(Number(document.getElementById('new-debt-term').value)) || 0;
       const notes = document.getElementById('new-debt-notes').value.trim();
-      if (term > 0) monthly = paymentForTerm(bal, term);
 
       if (!name || isNaN(bal)) {
         showToast("Please enter loan name and balance.", true);
