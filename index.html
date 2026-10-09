@@ -409,7 +409,7 @@
             <label class="text-xs font-medium text-slate-300">Take-Home Income (₱):</label>
             <div class="relative">
               <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-semibold text-sm">₱</span>
-              <input type="number" id="income-input" value="0" placeholder="0.00" onchange="updateIncome(this.value)" class="bg-slate-800 border border-slate-700 text-white text-sm font-bold rounded-xl pl-8 pr-3 py-2 w-40 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              <input type="text" inputmode="decimal" autocomplete="off" data-money id="income-input" value="0" placeholder="0.00" onchange="updateIncome(parseMoney(this.value))" class="bg-slate-800 border border-slate-700 text-white text-sm font-bold rounded-xl pl-8 pr-3 py-2 w-40 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
             </div>
           </div>
         </div>
@@ -558,7 +558,7 @@
             <p class="text-xs text-slate-400">Set aside liquid funds for unexpected health or vehicle emergencies.</p>
             <div>
               <label class="text-xs font-semibold text-slate-300 block mb-1">Monthly Allocation (₱):</label>
-              <input type="number" id="alloc-savings" value="0" placeholder="0.00" onchange="updateAllocations()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm font-bold rounded-xl px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              <input type="text" inputmode="decimal" autocomplete="off" data-money id="alloc-savings" value="0" placeholder="0.00" onchange="updateAllocations()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm font-bold rounded-xl px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
             </div>
           </div>
 
@@ -571,7 +571,7 @@
             <p class="text-xs text-slate-400">Pay down highest-interest or highest-priority loans ahead of time.</p>
             <div>
               <label class="text-xs font-semibold text-slate-300 block mb-1">Monthly Allocation (₱):</label>
-              <input type="number" id="alloc-debt-extra" value="0" placeholder="0.00" onchange="updateAllocations()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm font-bold rounded-xl px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none">
+              <input type="text" inputmode="decimal" autocomplete="off" data-money id="alloc-debt-extra" value="0" placeholder="0.00" onchange="updateAllocations()" class="w-full bg-slate-900 border border-slate-700 text-white text-sm font-bold rounded-xl px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none">
             </div>
           </div>
 
@@ -674,7 +674,7 @@
 
         <div>
           <label class="block font-semibold text-slate-300 mb-1">Monthly Amount (₱)</label>
-          <input type="number" id="new-expense-amount" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
+          <input type="text" inputmode="decimal" autocomplete="off" data-money id="new-expense-amount" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-indigo-500">
         </div>
       </div>
 
@@ -706,12 +706,17 @@
 
         <div>
           <label class="block font-semibold text-slate-300 mb-1">Current Principal Balance (₱)</label>
-          <input type="number" id="new-debt-balance" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500">
+          <input type="text" inputmode="decimal" autocomplete="off" data-money id="new-debt-balance" placeholder="0.00" oninput="previewModalPayment()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500">
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Term (months) <span class="font-normal text-slate-500">— optional, sets the monthly payment automatically</span></label>
+          <input type="number" id="new-debt-term" min="1" max="600" step="1" placeholder="e.g. 12" oninput="previewModalPayment()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500">
         </div>
 
         <div>
           <label class="block font-semibold text-slate-300 mb-1">Required Monthly Installment (₱)</label>
-          <input type="number" id="new-debt-monthly" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500">
+          <input type="text" inputmode="decimal" autocomplete="off" data-money id="new-debt-monthly" placeholder="0.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-amber-500">
         </div>
 
         <div>
@@ -990,6 +995,40 @@
       showToast("Cleared all data to fresh zero state.");
     }
 
+    // ---------- Money inputs with thousands separators ----------
+    function parseMoney(str) {
+      const n = Number(String(str == null ? '' : str).replace(/,/g, ''));
+      return isFinite(n) ? n : 0;
+    }
+    function moneyStr(n) {
+      n = Number(n);
+      if (!isFinite(n)) return '';
+      return n.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    }
+    function formatMoneyTyping(el) {
+      const raw = el.value;
+      const caret = el.selectionStart == null ? raw.length : el.selectionStart;
+      const sigBefore = raw.slice(0, caret).replace(/[^0-9.]/g, '').length; // digits/dot before caret
+      let clean = raw.replace(/[^0-9.]/g, '');
+      const dot = clean.indexOf('.');
+      if (dot !== -1) clean = clean.slice(0, dot + 1) + clean.slice(dot + 1).replace(/\./g, '');
+      let [intPart, decPart] = clean.split('.');
+      intPart = (intPart || '').replace(/^0+(?=\d)/, '');
+      const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      const out = decPart === undefined ? withCommas : withCommas + '.' + decPart.slice(0, 2);
+      if (out === raw) return;
+      el.value = out;
+      let seen = 0, pos = 0;
+      while (pos < out.length && seen < sigBefore) { if (/[0-9.]/.test(out[pos])) seen++; pos++; }
+      try { el.setSelectionRange(pos, pos); } catch (e) {}
+    }
+    document.addEventListener('input', e => { if (e.target.matches && e.target.matches('input[data-money]')) formatMoneyTyping(e.target); });
+    document.addEventListener('focusout', e => {
+      if (e.target.matches && e.target.matches('input[data-money]') && e.target.value.trim() !== '') {
+        e.target.value = moneyStr(parseMoney(e.target.value));
+      }
+    });
+
     function formatCurrency(num) {
       return '₱' + Number(num || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
@@ -1045,7 +1084,7 @@
       document.getElementById('legend-remaining-val').textContent = formatCurrency(totals.remainingCash);
 
       // Sync Income Input
-      document.getElementById('income-input').value = state.income || '';
+      document.getElementById('income-input').value = state.income ? moneyStr(state.income) : '';
 
       // Render Tables and Cards
       renderExpenseTable(totals);
@@ -1170,7 +1209,7 @@
             <td class="px-6 py-3.5 text-right font-bold text-slate-100">
               <div class="flex items-center justify-end gap-1">
                 <span>₱</span>
-                <input type="number" value="${exp.amount}" onchange="updateExpenseAmount('${exp.id}', this.value)" class="bg-slate-950 border border-slate-800 text-right w-28 px-2 py-1 rounded-lg text-xs focus:ring-1 focus:ring-indigo-500 font-bold text-emerald-400">
+                <input type="text" inputmode="decimal" autocomplete="off" data-money value="${moneyStr(exp.amount)}" onchange="updateExpenseAmount('${exp.id}', parseMoney(this.value))" class="bg-slate-950 border border-slate-800 text-right w-28 px-2 py-1 rounded-lg text-xs focus:ring-1 focus:ring-indigo-500 font-bold text-emerald-400">
               </div>
             </td>
             <td class="px-6 py-3.5 text-center no-print">
@@ -1223,15 +1262,22 @@
               <span class="text-slate-400">Balance:</span>
               <div class="flex items-center gap-1">
                 <span class="text-slate-500">₱</span>
-                <input type="number" value="${debt.balance}" onchange="updateDebtBalance('${debt.id}', this.value)" class="bg-slate-950 border border-slate-800 text-right w-24 px-2 py-0.5 rounded text-xs font-bold text-white focus:outline-none focus:border-amber-500">
+                <input type="text" inputmode="decimal" autocomplete="off" data-money value="${moneyStr(debt.balance)}" onchange="updateDebtBalance('${debt.id}', parseMoney(this.value))" class="bg-slate-950 border border-slate-800 text-right w-24 px-2 py-0.5 rounded text-xs font-bold text-white focus:outline-none focus:border-amber-500">
               </div>
             </div>
 
             <div class="flex justify-between items-center text-xs">
-              <span class="text-slate-400">Monthly Payment:</span>
+              <span class="text-slate-400">Term (months):</span>
+              <div class="flex items-center gap-1">
+                <input type="number" min="1" max="600" step="1" placeholder="—" value="${debt.term > 0 ? debt.term : ''}" onchange="updateDebtTerm('${debt.id}', this.value)" class="bg-slate-950 border border-slate-800 text-right w-24 px-2 py-0.5 rounded text-xs font-bold text-emerald-400 focus:outline-none focus:border-amber-500">
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center text-xs">
+              <span class="text-slate-400">Monthly Payment:${debt.term > 0 ? ' <span class="text-[10px] text-emerald-500">(auto)</span>' : ''}</span>
               <div class="flex items-center gap-1">
                 <span class="text-slate-500">₱</span>
-                <input type="number" value="${debt.monthly}" onchange="updateDebtMonthly('${debt.id}', this.value)" class="bg-slate-950 border border-slate-800 text-right w-24 px-2 py-0.5 rounded text-xs font-bold text-amber-400 focus:outline-none focus:border-amber-500">
+                <input type="text" inputmode="decimal" autocomplete="off" data-money value="${moneyStr(debt.monthly)}" onchange="updateDebtMonthly('${debt.id}', parseMoney(this.value))" class="bg-slate-950 border border-slate-800 text-right w-24 px-2 py-0.5 rounded text-xs font-bold text-amber-400 focus:outline-none focus:border-amber-500">
               </div>
             </div>
 
@@ -1275,7 +1321,7 @@
 
       let simDebts = state.debts.map(d => ({ balance: Number(d.balance), min: Number(d.monthly) }));
       let months = 0;
-      let monthHistory = [state.debts.reduce((s,d) => s + d.balance, 0)];
+      let monthHistory = [state.debts.reduce((s,d) => s + (Number(d.balance) || 0), 0)];
 
       while (simDebts.some(d => d.balance > 0) && months < 360) {
         months++;
@@ -1303,10 +1349,14 @@
         }
 
         let totalRemaining = simDebts.reduce((s,d) => s + Math.max(0, d.balance), 0);
-        if (months % 3 === 0 || totalRemaining === 0) {
-          monthHistory.push(totalRemaining);
-        }
+        monthHistory.push(totalRemaining);
       }
+
+      // Keep the chart readable: every month for short plans, sampled for long ones
+      const step = Math.max(1, Math.ceil(months / 36));
+      const chartLabels = [], chartData = [];
+      for (let m = 0; m <= months; m += step) { chartLabels.push(m === 0 ? 'Now' : 'Mo ' + m); chartData.push(monthHistory[m]); }
+      if ((months % step) !== 0) { chartLabels.push('Mo ' + months); chartData.push(monthHistory[months]); }
 
       document.getElementById('sim-months').textContent = `${months} Months`;
       
@@ -1320,10 +1370,10 @@
       payoffChartInstance = new Chart(ctxPayoff, {
         type: 'line',
         data: {
-          labels: monthHistory.map((_, i) => `Qtr ${i}`),
+          labels: chartLabels,
           datasets: [{
             label: 'Total Debt Balance (₱)',
-            data: monthHistory,
+            data: chartData,
             borderColor: '#6366f1',
             backgroundColor: 'rgba(99, 102, 241, 0.1)',
             fill: true,
@@ -1343,8 +1393,8 @@
     }
 
     function renderAllocations(totals) {
-      document.getElementById('alloc-savings').value = state.allocations.savings || '';
-      document.getElementById('alloc-debt-extra').value = state.allocations.extraDebt || '';
+      document.getElementById('alloc-savings').value = state.allocations.savings ? moneyStr(state.allocations.savings) : '';
+      document.getElementById('alloc-debt-extra').value = state.allocations.extraDebt ? moneyStr(state.allocations.extraDebt) : '';
 
       const totalAllocated = Number(state.allocations.savings) + Number(state.allocations.extraDebt);
       const remainingBuffer = totals.remainingCash - totalAllocated;
@@ -1355,14 +1405,14 @@
         document.getElementById('alloc-status').textContent = "⚠️ Over-allocated! Exceeds available monthly surplus.";
         document.getElementById('alloc-status').className = "font-bold text-sm text-rose-400";
       } else {
-        document.getElementById('alloc-status').textContent = `₱${remainingBuffer.toFixed(2)} safe buffer intact`;
+        document.getElementById('alloc-status').textContent = `${formatCurrency(remainingBuffer)} safe buffer intact`;
         document.getElementById('alloc-status').className = "font-bold text-sm text-emerald-400";
       }
     }
 
     function updateAllocations() {
-      state.allocations.savings = Number(document.getElementById('alloc-savings').value) || 0;
-      state.allocations.extraDebt = Number(document.getElementById('alloc-debt-extra').value) || 0;
+      state.allocations.savings = parseMoney(document.getElementById('alloc-savings').value);
+      state.allocations.extraDebt = parseMoney(document.getElementById('alloc-debt-extra').value);
       saveState();
       showToast("Updated surplus allocations.");
     }
@@ -1387,20 +1437,45 @@
       showToast("Expense item removed.");
     }
 
+    // Monthly payment needed to clear `balance` in `term` months (rounded up to the centavo)
+    function paymentForTerm(balance, term) {
+      const b = Number(balance) || 0, t = Math.floor(Number(term) || 0);
+      if (b <= 0 || t <= 0) return 0;
+      return Math.ceil(b / t * 100 - 1e-9) / 100;
+    }
+
     function updateDebtBalance(id, val) {
       const debt = state.debts.find(d => d.id === id);
       if (debt) {
         debt.balance = Number(val) || 0;
+        if (debt.term > 0) debt.monthly = paymentForTerm(debt.balance, debt.term);
         saveState();
       }
     }
 
+    // Monthly edited by hand -> term follows the payment
     function updateDebtMonthly(id, val) {
       const debt = state.debts.find(d => d.id === id);
       if (debt) {
         debt.monthly = Number(val) || 0;
+        if (debt.term > 0) debt.term = debt.monthly > 0 ? Math.ceil(debt.balance / debt.monthly) : 0;
         saveState();
       }
+    }
+
+    // Term set -> monthly payment auto-adjusts (blank/0 clears the term and keeps the current payment)
+    function updateDebtTerm(id, val) {
+      const debt = state.debts.find(d => d.id === id);
+      if (!debt) return;
+      const t = Math.floor(Number(val) || 0);
+      if (t > 0) {
+        debt.term = Math.min(t, 600);
+        debt.monthly = paymentForTerm(debt.balance, debt.term);
+        showToast('Payment set to ' + formatCurrency(debt.monthly) + '/month for ' + debt.term + ' months.');
+      } else {
+        debt.term = 0;
+      }
+      saveState();
     }
 
     function deleteDebt(id) {
@@ -1424,7 +1499,7 @@
     function addExpenseFromModal() {
       const name = document.getElementById('new-expense-name').value.trim();
       const cat = document.getElementById('new-expense-cat').value;
-      const amt = Number(document.getElementById('new-expense-amount').value);
+      const amt = parseMoney(document.getElementById('new-expense-amount').value);
 
       if (!name || isNaN(amt)) {
         showToast("Please enter a valid expense name and amount.", true);
@@ -1445,11 +1520,22 @@
       showToast("New expense item added.");
     }
 
+    // Live preview in the Add Debt form: term + balance -> monthly
+    function previewModalPayment() {
+      const term = Number(document.getElementById('new-debt-term').value);
+      const bal = parseMoney(document.getElementById('new-debt-balance').value);
+      const monthlyEl = document.getElementById('new-debt-monthly');
+      if (term > 0) { monthlyEl.value = paymentForTerm(bal, term) ? moneyStr(paymentForTerm(bal, term)) : ''; monthlyEl.readOnly = true; monthlyEl.classList.add('opacity-60'); }
+      else { monthlyEl.readOnly = false; monthlyEl.classList.remove('opacity-60'); }
+    }
+
     function addDebtFromModal() {
       const name = document.getElementById('new-debt-name').value.trim();
-      const bal = Number(document.getElementById('new-debt-balance').value);
-      const monthly = Number(document.getElementById('new-debt-monthly').value);
+      const bal = parseMoney(document.getElementById('new-debt-balance').value);
+      let monthly = parseMoney(document.getElementById('new-debt-monthly').value);
+      const term = Math.floor(Number(document.getElementById('new-debt-term').value)) || 0;
       const notes = document.getElementById('new-debt-notes').value.trim();
+      if (term > 0) monthly = paymentForTerm(bal, term);
 
       if (!name || isNaN(bal)) {
         showToast("Please enter loan name and balance.", true);
@@ -1464,6 +1550,7 @@
         name: name,
         balance: bal,
         monthly: monthly || 0,
+        term: term > 0 ? Math.min(term, 600) : 0,
         notes: notes || '',
         color: randomColor
       });
@@ -1471,6 +1558,7 @@
       document.getElementById('new-debt-name').value = '';
       document.getElementById('new-debt-balance').value = '';
       document.getElementById('new-debt-monthly').value = '';
+      document.getElementById('new-debt-term').value = '';
       document.getElementById('new-debt-notes').value = '';
       closeModal('modal-debt');
       saveState();
